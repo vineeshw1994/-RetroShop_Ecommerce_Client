@@ -63,7 +63,14 @@ export const authService = {
 
   logout: () => api.post<null>('/auth/logout'),
 
-  me: () => api.get<{ user: User }>('/auth/me'),
+  me: () =>
+    api.get<{
+      user: User;
+      admin?: AdminUser;
+      adminAccessToken?: string;
+      adminRefreshToken?: string;
+      permissionModules?: PermissionModule[];
+    }>('/auth/me'),
 };
 
 export const adminAuthService = {

@@ -24,14 +24,26 @@ const initialState: AuthState = {
   pendingResetEmail: null,
 };
 
-export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async (_, { rejectWithValue }) => {
+export const bootstrapAuth = createAsyncThunk('auth/bootstrap', async (_, { rejectWithValue, dispatch }) => {
   if (!tokenStore.getAccess('customer') && !tokenStore.getRefresh('customer')) {
     return rejectWithValue('no-session');
   }
 
   try {
     const response = await authService.me();
-    return response.data.user;
+    const { user, admin, adminAccessToken, adminRefreshToken, permissionModules } = response.data;
+
+    if (admin && adminAccessToken && adminRefreshToken) {
+      tokenStore.set('admin', adminAccessToken, adminRefreshToken);
+      dispatch(
+        setAdminSession({
+          admin,
+          permissionModules: permissionModules || [],
+        })
+      );
+    }
+
+    return user;
   } catch {
     tokenStore.clear('customer');
     return rejectWithValue('no-session');

@@ -96,11 +96,11 @@ const Header = () => {
             {showDashboardLink && (
               <Link
                 to="/admin"
-                className="flex items-center gap-1.5 rounded-lg bg-white/15 px-2 py-1.5 text-[11px] font-bold text-white transition hover:bg-white/25 sm:px-2.5 sm:text-xs"
+                className="flex items-center gap-1.5 rounded-lg border border-white/30 bg-white px-2 py-1.5 text-[11px] font-bold text-brand-600 shadow-sm transition hover:bg-white/95 sm:px-3 sm:text-xs"
                 title="Open admin dashboard"
               >
                 <FiLayout size={14} />
-                <span className="hidden xs:inline">Dashboard</span>
+                <span className="hidden sm:inline">Admin dashboard</span>
               </Link>
             )}
 
@@ -154,7 +154,7 @@ const Header = () => {
                           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-brand-700 transition hover:bg-brand-50"
                         >
                           <FiLayout size={15} className="text-brand-600" />
-                          Dashboard
+                          Admin dashboard
                         </Link>
                       )}
 
@@ -307,10 +307,10 @@ const Header = () => {
                       <Link
                         to="/admin"
                         onClick={() => setMobileOpen(false)}
-                        className="mb-3 flex items-center gap-2 rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-bold text-brand-700"
+                        className="mb-3 flex items-center gap-2 rounded-xl bg-brand-600 px-3 py-2.5 text-sm font-bold text-white"
                       >
                         <FiLayout size={16} />
-                        Open dashboard
+                        Admin dashboard
                       </Link>
                     )}
                     <Link
