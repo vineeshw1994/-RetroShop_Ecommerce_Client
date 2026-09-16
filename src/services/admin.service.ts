@@ -69,17 +69,21 @@ export interface UploadFile {
   updatedAt: string;
 }
 
+export type UploadFolder = 'products' | 'categories' | 'banners';
+
 export const adminUploadService = {
   list: (query: { page?: number; limit?: number; folder?: string; search?: string } = {}) =>
     adminApi.get<UploadFile[]>('/admin/uploads', { params: toParams(query) }) as Promise<
       Paged<UploadFile>
     >,
 
-  uploadProducts: (files: File[]) => {
+  upload: (folder: UploadFolder, files: File[]) => {
     const form = new FormData();
     files.forEach((file) => form.append('images', file));
-    return adminApi.post<UploadFile[]>('/admin/uploads/products', form);
+    return adminApi.post<UploadFile[]>(`/admin/uploads/${folder}`, form);
   },
+
+  uploadProducts: (files: File[]) => adminUploadService.upload('products', files),
 };
 
 export const adminDashboardService = {

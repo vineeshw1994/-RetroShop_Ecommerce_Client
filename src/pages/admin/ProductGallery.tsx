@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import {
   FiCheck,
   FiCopy,
@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fi';
 import { useAppDispatch } from '@/store';
 import { pushToast } from '@/store/slices/uiSlice';
-import { adminUploadService } from '@/services/admin.service';
+import { adminUploadService, type UploadFolder } from '@/services/admin.service';
 import { assetUrl } from '@/lib/format';
 import { getErrorMessage } from '@/lib/api';
 import cn from '@/lib/cn';
@@ -27,6 +27,44 @@ import {
 
 const PAGE_SIZE = 48;
 
+const GALLERY_FOLDERS: {
+  value: UploadFolder;
+  label: string;
+  viewPermission: 'products:view' | 'categories:view' | 'banners:view';
+  uploadPermission: 'products:update' | 'categories:update' | 'banners:update';
+  description: string;
+  uploadHint: string;
+  emptyHint: string;
+}[] = [
+  {
+    value: 'products',
+    label: 'Products',
+    viewPermission: 'products:view',
+    uploadPermission: 'products:update',
+    description: 'Product card and gallery images for the catalogue and bulk import sheets.',
+    uploadHint: 'Drag product images here instead of pasting into the server folder',
+    emptyHint: 'Upload images above, or paste files into ecommerce_server/uploads/products/.',
+  },
+  {
+    value: 'categories',
+    label: 'Categories',
+    viewPermission: 'categories:view',
+    uploadPermission: 'categories:update',
+    description: 'Category and sub-category images used in the admin catalogue and storefront menu.',
+    uploadHint: 'Drag category images here for use in category forms and bulk import',
+    emptyHint: 'Upload images above, or paste files into ecommerce_server/uploads/categories/.',
+  },
+  {
+    value: 'banners',
+    label: 'Banners',
+    viewPermission: 'banners:view',
+    uploadPermission: 'banners:update',
+    description: 'Homepage hero and promotional banner images.',
+    uploadHint: 'Drag banner images here for use in homepage promo slots',
+    emptyHint: 'Upload images above, or paste files into ecommerce_server/uploads/banners/.',
+  },
+];
+
 const formatBytes = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -38,25 +76,41 @@ const ProductGallery = () => {
 
   const dispatch = useAppDispatch();
   const { can } = usePermissions();
-  const canUpload = can('products:update');
-
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const visibleFolders = useMemo(
+    () => GALLERY_FOLDERS.filter((entry) => can(entry.viewPermission)),
+    [can]
+  );
+
+  const [folder, setFolder] = useState<UploadFolder>('products');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  const activeFolder =
+    visibleFolders.find((entry) => entry.value === folder) ?? visibleFolders[0] ?? GALLERY_FOLDERS[0];
+  const canUpload = can(activeFolder.uploadPermission);
   const debouncedSearch = useDebounce(search.trim(), 300);
+
+  useEffect(() => {
+    if (visibleFolders.length > 0 && !visibleFolders.some((entry) => entry.value === folder)) {
+      setFolder(visibleFolders[0].value);
+      setPage(1);
+      setSelected([]);
+    }
+  }, [visibleFolders, folder]);
 
   const query = useMemo(
     () => ({
       page,
       limit: PAGE_SIZE,
-      folder: 'products',
+      folder,
       search: debouncedSearch || undefined,
     }),
-    [page, debouncedSearch]
+    [page, debouncedSearch, folder]
   );
 
   const { data, loading, error, reload } = useAsync(
@@ -67,6 +121,13 @@ const ProductGallery = () => {
   const files = data?.data || [];
   const meta = data?.meta;
   const allOnPageSelected = files.length > 0 && files.every((file) => selected.includes(file.url));
+
+  const switchFolder = (next: UploadFolder) => {
+    setFolder(next);
+    setPage(1);
+    setSearch('');
+    setSelected([]);
+  };
 
   const toggleOne = (url: string) =>
     setSelected((current) =>
@@ -98,7 +159,7 @@ const ProductGallery = () => {
 
     setUploading(true);
     try {
-      const response = await adminUploadService.uploadProducts(images);
+      const response = await adminUploadService.upload(folder, images);
       dispatch(pushToast(response.message || `${images.length} image(s) uploaded`, 'success'));
       setPage(1);
       await reload();
@@ -126,7 +187,7 @@ const ProductGallery = () => {
     const lookup = new Map(selectedFiles.map((file) => [file.url, file]));
     const lines = selected.map((url) => {
       const file = lookup.get(url);
-      if (!file) return url.replace('/uploads/products/', '');
+      if (!file) return url.replace(`/uploads/${folder}/`, '');
       return mode === 'filename' ? file.name : file.url;
     });
 
@@ -147,16 +208,40 @@ const ProductGallery = () => {
     <div>
       <PageHeader
         title="Gallery"
-        description="Browse and upload product images stored in uploads/products. Use these files in bulk import sheets or product forms."
+        description="Browse and upload images stored on the server. Switch between product, category and banner folders."
         breadcrumbs={[{ label: 'Dashboard', to: '/admin' }, { label: 'Gallery' }]}
         actions={
           selected.length > 0 ? (
             <Badge tone="brand">{selected.length} selected</Badge>
           ) : (
-            meta && <span className="text-sm text-ink-500">{meta.total} image{meta.total === 1 ? '' : 's'}</span>
+            meta && (
+              <span className="text-sm text-ink-500">
+                {meta.total} {activeFolder.label.toLowerCase()} image{meta.total === 1 ? '' : 's'}
+              </span>
+            )
           )
         }
       />
+
+      <div className="mb-5 flex flex-wrap gap-2">
+        {visibleFolders.map((entry) => (
+          <button
+            key={entry.value}
+            type="button"
+            onClick={() => switchFolder(entry.value)}
+            className={cn(
+              'rounded-full border px-4 py-2 text-sm font-semibold transition',
+              folder === entry.value
+                ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                : 'border-ink-200 bg-white text-ink-600 hover:border-brand-300 hover:text-brand-700'
+            )}
+          >
+            {entry.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="mb-5 text-sm text-ink-500">{activeFolder.description}</p>
 
       {canUpload && (
         <section
@@ -172,11 +257,9 @@ const ProductGallery = () => {
           )}
         >
           <FiUploadCloud className="mx-auto text-ink-400" size={30} />
-          <p className="mt-2 text-sm font-semibold text-ink-700">
-            Drag product images here instead of pasting into the server folder
-          </p>
+          <p className="mt-2 text-sm font-semibold text-ink-700">{activeFolder.uploadHint}</p>
           <p className="mt-1 text-xs text-ink-500">
-            JPG, PNG, WEBP, AVIF or GIF · up to 32 files at once
+            JPG, PNG, WEBP, AVIF or GIF · up to 32 files at once · saved to uploads/{folder}/
           </p>
           <Button
             type="button"
@@ -213,11 +296,7 @@ const ProductGallery = () => {
           />
 
           <div className="flex flex-wrap items-center gap-2">
-            <Checkbox
-              checked={allOnPageSelected}
-              onChange={togglePage}
-              label="Select page"
-            />
+            <Checkbox checked={allOnPageSelected} onChange={togglePage} label="Select page" />
             <Button
               type="button"
               variant="outline"
@@ -258,12 +337,8 @@ const ProductGallery = () => {
           ) : files.length === 0 ? (
             <EmptyState
               icon={<FiImage size={28} />}
-              title="No product images yet"
-              message={
-                canUpload
-                  ? 'Upload images above, or paste files into ecommerce_server/uploads/products/.'
-                  : 'No images found in uploads/products/.'
-              }
+              title={`No ${activeFolder.label.toLowerCase()} images yet`}
+              message={canUpload ? activeFolder.emptyHint : `No images found in uploads/${folder}/.`}
             />
           ) : (
             <>

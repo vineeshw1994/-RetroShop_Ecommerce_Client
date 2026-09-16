@@ -60,7 +60,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'Catalogue',
     items: [
       { to: '/admin/products', label: 'Products', icon: FiBox, permissions: ['products:view'] },
-      { to: '/admin/gallery', label: 'Gallery', icon: FiFolder, permissions: ['products:view'] },
+      { to: '/admin/gallery', label: 'Gallery', icon: FiFolder, permissions: ['products:view', 'categories:view', 'banners:view'] },
       { to: '/admin/categories', label: 'Categories', icon: FiLayers, permissions: ['categories:view'] },
       { to: '/admin/banners', label: 'Banners', icon: FiImage, permissions: ['banners:view'] },
       { to: '/admin/inventory', label: 'Inventory', icon: FiArchive, permissions: ['inventory:view'], alertKey: 'lowStockCount' },

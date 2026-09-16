@@ -214,7 +214,7 @@ const App = () => {
             <Route
               path="gallery"
               element={
-                <RequirePermission permission="products:view">
+                <RequirePermission permission={['products:view', 'categories:view', 'banners:view']}>
                   <AdminProductGallery />
                 </RequirePermission>
               }
