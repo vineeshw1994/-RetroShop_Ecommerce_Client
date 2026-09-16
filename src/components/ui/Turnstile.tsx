@@ -159,7 +159,9 @@ const Turnstile = ({ onVerify, action, className }: TurnstileProps) => {
 
       {state === 'error' && (
         <p className="text-xs font-medium text-brand-600">
-          Could not load human verification. Check your connection and refresh.
+          Cloudflare Turnstile could not verify this website. In the Cloudflare dashboard, open your
+          Turnstile widget and add this hostname under Domains:{' '}
+          <code className="rounded bg-ink-100 px-1 py-0.5">{window.location.hostname}</code>
         </p>
       )}
     </div>

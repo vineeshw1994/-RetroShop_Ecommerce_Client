@@ -125,11 +125,18 @@ const ProductCard = ({
     }
   };
 
+  const motionProps =
+    variant === 'carousel'
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: '-40px' } as const,
+        };
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
+      {...motionProps}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
       className={cn(

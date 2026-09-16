@@ -261,11 +261,6 @@ const ProductRail = ({
   products: Product[];
   seeAllTo: string;
 }) => {
-  const scroller = useRef<HTMLDivElement>(null);
-
-  const scrollBy = (offset: number) =>
-    scroller.current?.scrollBy({ left: offset, behavior: 'smooth' });
-
   if (!products.length) return null;
 
   return (
@@ -280,42 +275,12 @@ const ProductRail = ({
           >
             See all
           </Link>
-
-          <div className="hidden items-center gap-1.5 lg:flex">
-            <button
-              type="button"
-              onClick={() => scrollBy(-520)}
-              aria-label={`Scroll ${title} left`}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50"
-            >
-              <FiChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollBy(520)}
-              aria-label={`Scroll ${title} right`}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50"
-            >
-              <FiChevronRight size={16} />
-            </button>
-          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:hidden">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      <div
-        ref={scroller}
-        className="no-scrollbar scroll-x-rail hidden items-stretch gap-4 overflow-x-auto pb-1 lg:flex"
-      >
-        {products.map((product) => (
-          <div key={product.id} className="flex h-full shrink-0">
-            <ProductCard product={product} variant="carousel" />
-          </div>
         ))}
       </div>
     </section>
