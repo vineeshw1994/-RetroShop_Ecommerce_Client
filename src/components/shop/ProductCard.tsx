@@ -135,7 +135,7 @@ const ProductCard = ({
       className={cn(
         'group relative flex h-full flex-col overflow-hidden rounded-[--radius-card] border border-ink-100 bg-white',
         'shadow-card transition-shadow hover:shadow-lift',
-        variant === 'carousel' && 'w-[168px] shrink-0 sm:w-[196px]'
+        variant === 'carousel' && 'w-[220px] shrink-0 xl:w-[240px]'
       )}
     >
       <div className="relative">

@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FiX } from 'react-icons/fi';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import cn from '@/lib/cn';
 
 const WIDTHS = {
@@ -32,6 +33,8 @@ const Modal = ({
   size = 'md',
   closeOnBackdrop = true,
 }: ModalProps) => {
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
 
@@ -40,13 +43,7 @@ const Modal = ({
     };
 
     document.addEventListener('keydown', onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [open, onClose]);
 
   return (

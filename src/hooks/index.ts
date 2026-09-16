@@ -232,3 +232,5 @@ export const useAsync = <T,>(
 
   return { data, loading, error, reload: run, setData };
 };
+
+export { useScrollLock } from './useScrollLock';

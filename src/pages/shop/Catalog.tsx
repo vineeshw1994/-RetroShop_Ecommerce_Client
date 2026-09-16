@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { addToBasket } from '@/store/slices/basketSlice';
 import { pushToast } from '@/store/slices/uiSlice';
 import { shopService, type ProductQuery } from '@/services/shop.service';
-import { useAsync, useDocumentTitle, useQueryFilters } from '@/hooks';
+import { useAsync, useDocumentTitle, useQueryFilters, useScrollLock } from '@/hooks';
 import { conditionLabel, formatNumber, formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
@@ -357,6 +357,8 @@ const Catalog = () => {
   const { slug: categorySlug } = useParams<{ slug: string }>();
   const { filters, setFilter, resetFilters } = useQueryFilters(CATALOG_DEFAULTS);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useScrollLock(drawerOpen);
 
   const activeCategory = categorySlug || filters.category;
 

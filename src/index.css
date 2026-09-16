@@ -95,6 +95,12 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Horizontal rails should not trap vertical page scroll on touch devices. */
+  .scroll-x-rail {
+    overscroll-behavior-x: contain;
+    touch-action: pan-y;
+  }
 }
 
 @layer utilities {

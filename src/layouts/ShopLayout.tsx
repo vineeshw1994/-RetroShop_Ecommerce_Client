@@ -12,6 +12,7 @@ import Footer from '@/components/shop/Footer';
 import { tokenStore } from '@/lib/storage';
 import cn from '@/lib/cn';
 import { removeStripeTestingAssistant } from '@/lib/stripeAssistant';
+import { resetBodyScrollLock } from '@/lib/scrollLock';
 
 const MOBILE_TABS = [
   { to: '/', label: 'Home', icon: FiHome, end: true },
@@ -72,6 +73,7 @@ const ShopLayout = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
     removeStripeTestingAssistant();
+    resetBodyScrollLock();
   }, [location.pathname]);
 
   void basketStatus;

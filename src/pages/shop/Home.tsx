@@ -302,12 +302,18 @@ const ProductRail = ({
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:hidden">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
       <div
         ref={scroller}
-        className="no-scrollbar -mx-4 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-4 pb-1 sm:gap-4 lg:mx-0 lg:px-0"
+        className="no-scrollbar scroll-x-rail hidden items-stretch gap-4 overflow-x-auto pb-1 lg:flex"
       >
         {products.map((product) => (
-          <div key={product.id} className="flex h-full snap-start">
+          <div key={product.id} className="flex h-full shrink-0">
             <ProductCard product={product} variant="carousel" />
           </div>
         ))}

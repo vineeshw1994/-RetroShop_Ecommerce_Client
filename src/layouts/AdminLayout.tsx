@@ -30,11 +30,12 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store';
 import { adminLogout } from '@/store/slices/adminAuthSlice';
 import { pushToast, toggleAdminSidebar } from '@/store/slices/uiSlice';
-import { usePermissions, useClickOutside } from '@/hooks';
+import { usePermissions, useClickOutside, useScrollLock } from '@/hooks';
 import { useAdminAlerts } from '@/hooks/useAdminAlerts';
 import type { AdminAlertKey } from '@/lib/adminAlerts';
 import { initials } from '@/lib/format';
 import cn from '@/lib/cn';
+import { resetBodyScrollLock } from '@/lib/scrollLock';
 import { SmartImage } from '@/components/ui';
 
 interface NavItem {
@@ -103,7 +104,10 @@ const AdminLayout = () => {
 
   useEffect(() => {
     setMobileOpen(false);
+    resetBodyScrollLock();
   }, [location.pathname]);
+
+  useScrollLock(mobileOpen);
 
   useEffect(() => {
     const routes: { prefix: string; key: AdminAlertKey }[] = [

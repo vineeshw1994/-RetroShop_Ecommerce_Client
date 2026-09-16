@@ -20,7 +20,7 @@ import { fetchCategories } from '@/store/slices/catalogSlice';
 import { resetBasket } from '@/store/slices/basketSlice';
 import { resetWishlist } from '@/store/slices/wishlistSlice';
 import { pushToast } from '@/store/slices/uiSlice';
-import { useClickOutside } from '@/hooks';
+import { useClickOutside, useScrollLock } from '@/hooks';
 import { initials } from '@/lib/format';
 import { tokenStore } from '@/lib/storage';
 import cn from '@/lib/cn';
@@ -42,6 +42,8 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const accountRef = useClickOutside<HTMLDivElement>(() => setAccountOpen(false));
+
+  useScrollLock(mobileOpen);
 
   useEffect(() => {
     if (categoriesStatus === 'idle') void dispatch(fetchCategories());
