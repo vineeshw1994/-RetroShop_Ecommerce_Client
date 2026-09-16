@@ -1,0 +1,120 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. The storefront leans on a confident red primary with a
+ * near-black ink scale, echoing the trade-in shop look from the brief.
+ */
+@theme {
+  --color-brand-50: #fff1f3;
+  --color-brand-100: #ffe0e5;
+  --color-brand-200: #ffc6cf;
+  --color-brand-300: #ff9dac;
+  --color-brand-400: #ff647d;
+  --color-brand-500: #f5325a;
+  --color-brand-600: #e4002b;
+  --color-brand-700: #c00024;
+  --color-brand-800: #9e0621;
+  --color-brand-900: #840c21;
+
+  --color-ink-50: #f7f8fa;
+  --color-ink-100: #eef0f4;
+  --color-ink-200: #dfe3ea;
+  --color-ink-300: #c6ccd8;
+  --color-ink-400: #97a1b3;
+  --color-ink-500: #6b7689;
+  --color-ink-600: #4c5566;
+  --color-ink-700: #383f4d;
+  --color-ink-800: #21262f;
+  --color-ink-900: #12161c;
+
+  --color-accent-500: #0b63f6;
+  --color-accent-600: #0a4fc4;
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05), 0 8px 24px -12px rgb(16 24 40 / 0.12);
+  --shadow-lift: 0 12px 32px -12px rgb(16 24 40 / 0.22);
+
+  --radius-card: 0.875rem;
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-800 font-sans antialiased;
+  }
+
+  /* Keyboard users get a visible ring; mouse users do not. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-ink-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ink-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-400;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-[--radius-card] shadow-card border border-ink-100;
+  }
+
+  .input-base {
+    @apply w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-800
+           placeholder:text-ink-400 transition
+           focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 focus:outline-none
+           disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400;
+  }
+
+  .input-error {
+    @apply border-brand-500 focus:border-brand-600 focus:ring-brand-600/10;
+  }
+
+  /* Hide the horizontal scrollbar on carousels while keeping the scroll. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-ink-100) 25%,
+      var(--color-ink-200) 37%,
+      var(--color-ink-100) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+}
