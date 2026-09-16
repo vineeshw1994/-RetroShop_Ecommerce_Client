@@ -12,7 +12,8 @@ node_modules
 
 *.local
 .env
-
+dist
+dist.zip
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
