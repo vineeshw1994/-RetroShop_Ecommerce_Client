@@ -382,7 +382,7 @@ const ProductGallery = () => {
                 })}
               </div>
 
-              {meta && meta.pages > 1 && (
+              {meta && meta.totalPages > 1 && (
                 <div className="mt-5 border-t border-ink-100 pt-4">
                   <Pagination meta={meta} onPageChange={setPage} />
                 </div>

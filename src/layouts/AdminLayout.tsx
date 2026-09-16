@@ -28,7 +28,7 @@ import {
   FiFolder,
 } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { bootstrapAdmin, adminLogout } from '@/store/slices/adminAuthSlice';
+import { adminLogout } from '@/store/slices/adminAuthSlice';
 import { pushToast, toggleAdminSidebar } from '@/store/slices/uiSlice';
 import { usePermissions, useClickOutside } from '@/hooks';
 import { useAdminAlerts } from '@/hooks/useAdminAlerts';

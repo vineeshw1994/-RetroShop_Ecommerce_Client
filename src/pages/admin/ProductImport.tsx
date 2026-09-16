@@ -7,7 +7,7 @@ import { adminProductImportService } from '@/services/admin.service';
 import { getErrorMessage } from '@/lib/api';
 import { useDocumentTitle } from '@/hooks';
 import { PageHeader } from '@/components/admin';
-import { Badge, Button, ErrorState } from '@/components/ui';
+import { Badge, Button } from '@/components/ui';
 
 interface ImportSummary {
   totalRows: number;

@@ -199,17 +199,17 @@ const ImagePicker = ({
               })}
             </div>
 
-            {meta && meta.pages > 1 && (
+            {meta && meta.totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-ink-100 pt-3">
                 <p className="text-xs text-ink-500">
-                  Page {meta.page} of {meta.pages} · {meta.total} image{meta.total === 1 ? '' : 's'}
+                  Page {meta.page} of {meta.totalPages} · {meta.total} image{meta.total === 1 ? '' : 's'}
                 </p>
                 <div className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    disabled={page <= 1}
+                    disabled={!meta.hasPrev}
                     onClick={() => setPage((current) => Math.max(1, current - 1))}
                   >
                     Previous
@@ -218,7 +218,7 @@ const ImagePicker = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    disabled={page >= meta.pages}
+                    disabled={!meta.hasNext}
                     onClick={() => setPage((current) => current + 1)}
                   >
                     Next

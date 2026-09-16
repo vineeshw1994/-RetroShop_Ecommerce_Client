@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/tool
 import { authService, type LoginPayload, type SignupPayload } from '@/services/auth.service';
 import { getErrorMessage } from '@/lib/api';
 import { guestBasket, tokenStore } from '@/lib/storage';
-import type { PermissionModule, User } from '@/types';
+import type { User } from '@/types';
 import { setAdminSession } from './adminAuthSlice';
 
 interface AuthState {

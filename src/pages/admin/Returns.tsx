@@ -6,7 +6,6 @@ import {
   Badge,
   Button,
   Checkbox,
-  ConfirmDialog,
   ErrorState,
   Modal,
   Pagination,
