@@ -9,6 +9,24 @@ import { tokenStore, type Audience } from './storage';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+/** Bypass CDN/Varnish caches that stored empty storefront payloads for the live Origin. */
+const withNoCache = (config: InternalAxiosRequestConfig) => {
+  const method = (config.method || 'get').toLowerCase();
+  if (method !== 'get') return config;
+
+  config.headers.set('Cache-Control', 'no-cache');
+  config.headers.set('Pragma', 'no-cache');
+
+  if (import.meta.env.PROD && API_URL.startsWith('http')) {
+    config.params = {
+      ...(config.params as Record<string, unknown> | undefined),
+      _: Date.now(),
+    };
+  }
+
+  return config;
+};
+
 /** Error carrying the API's per-field messages so forms can show them inline. */
 export class ApiError extends Error {
   status: number;
@@ -58,6 +76,7 @@ const buildClient = (audience: Audience, refreshPath: string): AxiosInstance => 
   const client = axios.create({ baseURL: API_URL, withCredentials: true });
 
   client.interceptors.request.use((config) => {
+    withNoCache(config);
     const token = tokenStore.getAccess(audience);
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;

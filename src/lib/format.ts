@@ -2,16 +2,14 @@ import type { OrderStatus, ProductCondition } from '@/types';
 
 const ASSET_URL = import.meta.env.VITE_ASSET_URL || '';
 
-const currency = new Intl.NumberFormat('en-GB', {
-  style: 'currency',
-  currency: 'GBP',
-  minimumFractionDigits: 2,
-});
+/** Always render UK pounds regardless of the visitor's browser locale. */
+export const formatPrice = (value: number | null | undefined) => {
+  const numeric = Number(value) || 0;
+  const sign = numeric < 0 ? '-' : '';
+  return `${sign}£${Math.abs(numeric).toFixed(2)}`;
+};
 
 const compact = new Intl.NumberFormat('en-GB', { notation: 'compact', maximumFractionDigits: 1 });
-
-export const formatPrice = (value: number | null | undefined) =>
-  currency.format(Number(value) || 0);
 
 export const formatNumber = (value: number | null | undefined) =>
   new Intl.NumberFormat('en-GB').format(Number(value) || 0);
