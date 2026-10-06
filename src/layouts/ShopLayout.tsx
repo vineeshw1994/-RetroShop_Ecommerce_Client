@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHome, FiGrid, FiShoppingCart, FiHeart, FiUser } from 'react-icons/fi';
+import { FiHome, FiGrid, FiShoppingCart, FiRefreshCw, FiUser } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { bootstrapAdmin } from '@/store/slices/adminAuthSlice';
@@ -16,22 +16,15 @@ import { resetBodyScrollLock } from '@/lib/scrollLock';
 
 const MOBILE_TABS = [
   { to: '/', label: 'Home', icon: FiHome, end: true },
-  { to: '/search', label: 'Browse', icon: FiGrid },
+  { to: '/search', label: 'Shop', icon: FiGrid },
+  { to: '/request-a-game', label: 'Trade-in', icon: FiRefreshCw },
   { to: '/basket', label: 'Basket', icon: FiShoppingCart, badge: 'basket' as const },
-  { to: '/account/wishlist', label: 'Saved', icon: FiHeart, match: 'wishlist' as const },
   { to: '/account', label: 'Account', icon: FiUser, match: 'account' as const },
 ];
 
 const isMobileTabActive = (tab: (typeof MOBILE_TABS)[number], pathname: string) => {
-  if (tab.match === 'wishlist') {
-    return pathname === '/account/wishlist' || pathname.startsWith('/account/wishlist/');
-  }
-
   if (tab.match === 'account') {
-    return (
-      pathname === '/account' ||
-      (pathname.startsWith('/account/') && !pathname.startsWith('/account/wishlist'))
-    );
+    return pathname === '/account' || pathname.startsWith('/account/');
   }
 
   if (tab.end) return pathname === tab.to;
@@ -95,7 +88,7 @@ const ShopLayout = () => {
       <Footer />
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-ink-200 bg-white/95 backdrop-blur lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-ink-200 bg-ink-50/95 backdrop-blur lg:hidden">
         <div className="grid grid-cols-5">
           {MOBILE_TABS.map((tab) => (
             <NavLink
@@ -114,7 +107,7 @@ const ShopLayout = () => {
               <tab.icon size={19} />
               {tab.label}
               {tab.badge === 'basket' && itemCount > 0 && (
-                <span className="absolute right-[22%] top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-600 px-1 text-[9px] font-bold text-white">
+                <span className="absolute right-[22%] top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[9px] font-bold text-white">
                   {itemCount}
                 </span>
               )}

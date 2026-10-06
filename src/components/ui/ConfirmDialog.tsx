@@ -46,8 +46,8 @@ const ConfirmDialog = ({
       <span
         className={
           tone === 'danger'
-            ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600'
-            : 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600'
+            ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-500/15 text-rose-400'
+            : 'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-400'
         }
       >
         <FiAlertTriangle size={20} />

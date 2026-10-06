@@ -77,6 +77,30 @@ export const CONDITION_LABELS: Record<ProductCondition, string> = {
 export const conditionLabel = (condition: string | null | undefined) =>
   CONDITION_LABELS[condition as ProductCondition] || 'Pre-owned';
 
+export type ProductGrade = 'A' | 'B' | 'C';
+
+/** Respawn-style grade used on product cards and the PDP. */
+export const conditionGrade = (condition: string | null | undefined): ProductGrade => {
+  if (condition === 'new' || condition === 'like_new' || condition === 'very_good') return 'A';
+  if (condition === 'good') return 'B';
+  return 'C';
+};
+
+export const gradeLabel = (condition: string | null | undefined) =>
+  `Grade ${conditionGrade(condition)}`;
+
+export const conditionQuality = (condition: string | null | undefined) => {
+  const grade = conditionGrade(condition);
+  if (grade === 'A') return 'Excellent';
+  if (grade === 'B') return 'Good';
+  return 'Fair';
+};
+
+export const isConsoleProduct = (name: string, categoryName?: string | null) =>
+  /console|switch|playstation|xbox|ps5|ps4|wii|snes|mega drive/i.test(
+    `${name} ${categoryName || ''}`
+  );
+
 /** Human-readable warranty from months stored on the product. */
 export const warrantyLabel = (months: number | null | undefined) => {
   const value = Number(months) || 0;
@@ -112,14 +136,14 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 
 /** Tailwind classes per order status, shared by the badge components. */
 export const ORDER_STATUS_STYLES: Record<OrderStatus, string> = {
-  pending: 'bg-amber-50 text-amber-700 ring-amber-200',
-  confirmed: 'bg-blue-50 text-blue-700 ring-blue-200',
-  processing: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
-  packed: 'bg-violet-50 text-violet-700 ring-violet-200',
-  shipped: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
-  delivered: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  cancelled: 'bg-ink-100 text-ink-600 ring-ink-200',
-  refunded: 'bg-rose-50 text-rose-700 ring-rose-200',
+  pending: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
+  confirmed: 'bg-cyan-500/15 text-cyan-300 ring-cyan-500/30',
+  processing: 'bg-indigo-500/15 text-indigo-300 ring-indigo-500/30',
+  packed: 'bg-violet-500/15 text-violet-300 ring-violet-500/30',
+  shipped: 'bg-sky-500/15 text-sky-300 ring-sky-500/30',
+  delivered: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
+  cancelled: 'bg-ink-200 text-ink-500 ring-ink-300',
+  refunded: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
 };
 
 export const ORDER_TIMELINE: OrderStatus[] = [

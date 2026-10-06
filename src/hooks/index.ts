@@ -187,7 +187,7 @@ export const usePermissions = () => {
 };
 
 /** Set the document title for a page. */
-export const useDocumentTitle = (title: string, suffix = 'Retro Shop') => {
+export const useDocumentTitle = (title: string, suffix = 'Respawn') => {
   useEffect(() => {
     const previous = document.title;
     document.title = title ? `${title} | ${suffix}` : suffix;

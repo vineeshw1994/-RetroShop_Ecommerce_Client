@@ -231,7 +231,7 @@ const Profile = () => {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
               aria-label="Change profile photo"
-              className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-ink-900 text-white shadow-md transition hover:bg-ink-800 disabled:opacity-60"
+              className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-void text-white shadow-md transition hover:bg-ink-800 disabled:opacity-60"
             >
               <FiCamera size={14} />
             </button>

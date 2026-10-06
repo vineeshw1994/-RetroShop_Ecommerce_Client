@@ -42,7 +42,7 @@ const ToastRow = ({ toast }: { toast: Toast }) => {
       exit={{ opacity: 0, x: 40, scale: 0.96 }}
       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
       role="status"
-      className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-ink-100 border-l-4 bg-white p-3.5 shadow-lift ${TONES[toast.variant]}`}
+      className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border border-ink-100 border-l-4 bg-ink-100 p-3.5 shadow-lift ${TONES[toast.variant]}`}
     >
       <Icon size={18} className="mt-0.5 shrink-0" />
       <p className="flex-1 text-sm font-medium text-ink-700">{toast.message}</p>

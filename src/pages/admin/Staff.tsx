@@ -229,7 +229,7 @@ const TemporaryPasswordPanel = ({ password }: { password: string }) => {
       </p>
 
       <div className="mt-3 flex items-center gap-2">
-        <code className="flex-1 select-all rounded-lg border border-amber-200 bg-white px-3 py-2.5 font-mono text-sm font-bold tracking-wide text-ink-900">
+        <code className="flex-1 select-all rounded-lg border border-amber-200 bg-ink-100 px-3 py-2.5 font-mono text-sm font-bold tracking-wide text-ink-900">
           {password}
         </code>
         <Button
@@ -530,7 +530,7 @@ const Staff = () => {
           className="h-full w-full object-cover"
         />
       ) : (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink-900 text-xs font-bold text-white">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-void text-xs font-bold text-white">
           {initials(staff.name)}
         </span>
       )}

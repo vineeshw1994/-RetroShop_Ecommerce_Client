@@ -133,7 +133,7 @@ const ImagePicker = ({
                 setFolder(event.target.value);
                 setPage(1);
               }}
-              className="h-11 w-full appearance-none rounded-lg border border-ink-200 bg-white pl-9 pr-8 text-sm font-medium text-ink-700 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              className="h-11 w-full appearance-none rounded-lg border border-ink-200 bg-ink-100 pl-9 pr-8 text-sm font-medium text-ink-700 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
             >
               {FOLDERS.map((entry) => (
                 <option key={entry.value || 'all'} value={entry.value}>
@@ -191,7 +191,7 @@ const ImagePicker = ({
                       </span>
                     )}
 
-                    <span className="absolute inset-x-0 bottom-0 truncate bg-ink-900/70 px-1.5 py-1 text-[10px] font-medium text-white">
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-void/70 px-1.5 py-1 text-[10px] font-medium text-white">
                       {file.name}
                     </span>
                   </button>

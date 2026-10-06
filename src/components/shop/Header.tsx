@@ -25,6 +25,7 @@ import { initials } from '@/lib/format';
 import { tokenStore } from '@/lib/storage';
 import cn from '@/lib/cn';
 import SearchBar from './SearchBar';
+import BrandMark from './BrandMark';
 import { SmartImage } from '@/components/ui';
 
 const Header = () => {
@@ -71,26 +72,19 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40">
-      <div className="bg-brand-600">
+      <div className="border-b border-brand-500/20 bg-void/90 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4 lg:gap-5 lg:px-6">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
-            className="flex shrink-0 flex-col items-center gap-0.5 text-white lg:hidden"
+            className="flex shrink-0 flex-col items-center gap-0.5 text-brand-400 lg:hidden"
           >
             <FiMenu size={22} />
             <span className="hidden text-[9px] font-semibold xs:block">Menu</span>
           </button>
 
-          <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Retro Shop home">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-black text-brand-600 sm:h-9 sm:w-9 sm:text-sm">
-              RS
-            </span>
-            <span className="hidden text-lg font-black tracking-tight text-white md:block">
-              Retro<span className="text-white/70">Shop</span>
-            </span>
-          </Link>
+          <BrandMark compact={false} className="min-w-0" />
 
           <SearchBar className="mx-auto hidden min-w-0 max-w-2xl flex-1 md:block" />
 
@@ -98,7 +92,7 @@ const Header = () => {
             {showDashboardLink && (
               <Link
                 to="/admin"
-                className="flex items-center gap-1.5 rounded-lg border border-white/30 bg-white px-2 py-1.5 text-[11px] font-bold text-brand-600 shadow-sm transition hover:bg-white/95 sm:px-3 sm:text-xs"
+                className="flex items-center gap-1.5 rounded-lg border border-white/30 bg-ink-100 px-2 py-1.5 text-[11px] font-bold text-brand-600 shadow-sm transition hover:bg-ink-50/95 sm:px-3 sm:text-xs"
                 title="Open admin dashboard"
               >
                 <FiLayout size={14} />
@@ -122,7 +116,7 @@ const Header = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : user ? (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[10px] font-bold text-brand-600">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink-100 text-[10px] font-bold text-brand-600">
                     {initials(user.fullName)}
                   </span>
                 ) : (
@@ -141,7 +135,7 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-[calc(100%+10px)] w-60 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lift"
+                    className="absolute right-0 top-[calc(100%+10px)] w-60 overflow-hidden rounded-xl border border-ink-100 bg-ink-100 shadow-lift"
                   >
                     <div className="border-b border-ink-100 bg-ink-50 px-4 py-3">
                       <p className="truncate text-sm font-bold text-ink-900">{user.fullName}</p>
@@ -199,7 +193,7 @@ const Header = () => {
               <FiHeart size={20} />
               <span className="text-[9px] font-semibold">Saved</span>
               {wishlistCount > 0 && (
-                <span className="absolute -right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[9px] font-bold text-white">
+                <span className="absolute -right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-void px-1 text-[9px] font-bold text-white">
                   {wishlistCount}
                 </span>
               )}
@@ -217,7 +211,7 @@ const Header = () => {
                   key={itemCount}
                   initial={{ scale: 0.6 }}
                   animate={{ scale: 1 }}
-                  className="absolute -right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[9px] font-bold text-white"
+                  className="absolute -right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-void px-1 text-[9px] font-bold text-white"
                 >
                   {itemCount}
                 </motion.span>
@@ -280,7 +274,7 @@ const Header = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="absolute inset-0 bg-ink-900/55"
+              className="absolute inset-0 bg-void/55"
             />
 
             <motion.aside
@@ -288,15 +282,15 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="relative flex h-full w-[86%] max-w-xs flex-col bg-white"
+              className="relative flex h-full w-[86%] max-w-xs flex-col bg-ink-50"
             >
-              <div className="flex items-center justify-between bg-brand-600 px-4 py-4">
-                <span className="text-lg font-black text-white">RetroShop</span>
+              <div className="flex items-center justify-between border-b border-brand-500/20 bg-void px-4 py-4">
+                <BrandMark to="/" />
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
                   aria-label="Close menu"
-                  className="rounded-lg p-1.5 text-white transition hover:bg-white/15"
+                  className="rounded-lg p-1.5 text-brand-400 transition hover:bg-white/10"
                 >
                   <FiX size={20} />
                 </button>
@@ -309,7 +303,7 @@ const Header = () => {
                       <Link
                         to="/admin"
                         onClick={() => setMobileOpen(false)}
-                        className="mb-3 flex items-center gap-2 rounded-xl bg-brand-600 px-3 py-2.5 text-sm font-bold text-white"
+                        className="mb-3 flex items-center gap-2 rounded-xl btn-glow px-3 py-2.5 text-sm font-bold text-void"
                       >
                         <FiLayout size={16} />
                         Admin dashboard
@@ -336,14 +330,14 @@ const Header = () => {
                     <Link
                       to="/login"
                       onClick={() => setMobileOpen(false)}
-                      className="rounded-lg bg-brand-600 py-2.5 text-center text-sm font-bold text-white"
+                      className="rounded-full btn-glow py-2.5 text-center text-sm font-bold text-void"
                     >
                       Sign in
                     </Link>
                     <Link
                       to="/signup"
                       onClick={() => setMobileOpen(false)}
-                      className="rounded-lg border border-ink-200 py-2.5 text-center text-sm font-bold text-ink-700"
+                      className="rounded-full border border-ink-300 py-2.5 text-center text-sm font-bold text-ink-800"
                     >
                       Register
                     </Link>
@@ -387,9 +381,12 @@ const Header = () => {
                 <Link
                   to="/request-a-game"
                   onClick={() => setMobileOpen(false)}
-                  className="mt-4 block rounded-lg bg-ink-900 py-2.5 text-center text-sm font-bold text-white"
+                  className="mt-4 block rounded-xl border border-brand-500/30 bg-brand-500/10 px-3 py-3 text-sm"
                 >
-                  Request a game
+                  <span className="block font-bold text-brand-400">Why Choose Respawn?</span>
+                  <span className="mt-0.5 block text-xs text-ink-500">
+                    Quality, service and great prices on pre-owned gaming &amp; tech.
+                  </span>
                 </Link>
               </div>
             </motion.aside>

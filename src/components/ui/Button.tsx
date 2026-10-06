@@ -7,13 +7,14 @@ type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'succe
 type Size = 'sm' | 'md' | 'lg' | 'icon';
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm',
-  secondary: 'bg-ink-100 text-ink-800 hover:bg-ink-200',
-  outline: 'border border-ink-200 bg-white text-ink-700 hover:bg-ink-50 hover:border-ink-300',
-  ghost: 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
+  primary: 'btn-glow text-void hover:brightness-110 shadow-glow',
+  secondary: 'bg-ink-200 text-ink-800 hover:bg-ink-300',
+  outline:
+    'border border-brand-500/50 bg-transparent text-brand-400 hover:border-brand-400 hover:bg-brand-500/10',
+  ghost: 'text-ink-500 hover:bg-ink-200 hover:text-ink-900',
   danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm',
   success: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm',
-  dark: 'bg-ink-900 text-white hover:bg-ink-800 shadow-sm',
+  dark: 'btn-glow-purple text-white hover:brightness-110',
 };
 
 const SIZES: Record<Size, string> = {
@@ -55,7 +56,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center rounded-lg font-semibold transition-colors',
+        'inline-flex items-center justify-center rounded-full font-bold tracking-wide transition',
         'disabled:cursor-not-allowed disabled:opacity-55',
         VARIANTS[variant],
         SIZES[size],

@@ -6,12 +6,12 @@ import type { OrderStatus } from '@/types';
 type Tone = 'neutral' | 'brand' | 'success' | 'warning' | 'danger' | 'info';
 
 const TONES: Record<Tone, string> = {
-  neutral: 'bg-ink-100 text-ink-700 ring-ink-200',
-  brand: 'bg-brand-50 text-brand-700 ring-brand-200',
-  success: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  warning: 'bg-amber-50 text-amber-700 ring-amber-200',
-  danger: 'bg-rose-50 text-rose-700 ring-rose-200',
-  info: 'bg-blue-50 text-blue-700 ring-blue-200',
+  neutral: 'bg-ink-200 text-ink-700 ring-ink-300',
+  brand: 'bg-brand-50 text-brand-400 ring-brand-200',
+  success: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
+  warning: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
+  danger: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
+  info: 'bg-cyan-500/15 text-cyan-300 ring-cyan-500/30',
 };
 
 interface BadgeProps {

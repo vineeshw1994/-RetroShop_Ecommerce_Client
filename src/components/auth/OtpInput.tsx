@@ -125,10 +125,10 @@ const OtpInput = ({
             aria-label={`Digit ${index + 1}`}
             aria-invalid={Boolean(error)}
             className={cn(
-              'h-13 w-full min-w-0 rounded-lg border bg-white text-center text-xl font-bold text-ink-900 transition',
-              'focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 focus:outline-none',
+              'h-14 w-full min-w-0 rounded-xl border bg-ink-100 text-center text-2xl font-black text-ink-900 transition',
+              'focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 focus:outline-none',
               'disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400',
-              error ? 'border-brand-500' : 'border-ink-200'
+              error ? 'border-rose-500' : 'border-ink-300'
             )}
           />
         ))}

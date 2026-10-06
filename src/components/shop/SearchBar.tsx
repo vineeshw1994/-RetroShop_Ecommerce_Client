@@ -74,6 +74,7 @@ const SearchBar = ({ className }: { className?: string }) => {
         role="search"
       >
         <div className="relative">
+          <FiSearch size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-400" />
           <input
             type="search"
             value={term}
@@ -82,9 +83,9 @@ const SearchBar = ({ className }: { className?: string }) => {
               setOpen(true);
             }}
             onFocus={() => setOpen(true)}
-            placeholder="What do you want to buy?"
+            placeholder="Search consoles, games, tech and more..."
             aria-label="Search products"
-            className="h-11 w-full rounded-lg border-0 bg-white pl-4 pr-11 text-sm text-ink-800 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-ink-900/10"
+            className="h-11 w-full rounded-full border border-brand-500/35 bg-ink-50 pl-11 pr-11 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
           />
 
           {term && (
@@ -118,7 +119,7 @@ const SearchBar = ({ className }: { className?: string }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lift"
+            className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-ink-200 bg-ink-100 shadow-lift"
           >
             {showHistory && (
               <div className="p-2">

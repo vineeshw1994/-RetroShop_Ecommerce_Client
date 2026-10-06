@@ -80,13 +80,15 @@ export const login = createAsyncThunk(
       return user;
     } catch (error) {
       // A 403 with requiresVerification means "go to the OTP screen", not a failure.
-      const payloadData = (error as { payload?: { data?: { requiresVerification?: boolean; email?: string } } })
-        .payload;
+      const payloadData = (error as {
+        payload?: { data?: { requiresVerification?: boolean; email?: string; devOtp?: string } };
+      }).payload;
       if (payloadData?.data?.requiresVerification) {
         return rejectWithValue({
           message: getErrorMessage(error),
           requiresVerification: true,
           email: payloadData.data.email,
+          devOtp: payloadData.data.devOtp,
         });
       }
       return rejectWithValue({ message: getErrorMessage(error) });

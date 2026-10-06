@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import {
   FiAlertTriangle,
   FiArrowRight,
+  FiLock,
   FiMinus,
   FiPlus,
   FiShoppingCart,
   FiTrash2,
+  FiRefreshCw,
 } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -18,10 +20,11 @@ import {
 } from '@/store/slices/basketSlice';
 import { pushToast } from '@/store/slices/uiSlice';
 import { useDocumentTitle } from '@/hooks';
-import { conditionLabel, formatPrice } from '@/lib/format';
+import { formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
+import GradeBadge from '@/components/shop/GradeBadge';
+import CreditBanner from '@/components/shop/CreditBanner';
 import {
-  Badge,
   Button,
   ConfirmDialog,
   EmptyState,
@@ -53,6 +56,13 @@ const LineRow = ({
 }) => {
   const dispatch = useAppDispatch();
   const hasIssue = line.isUnavailable || line.exceedsStock;
+  const saves =
+    line.listPrice > line.unitPrice
+      ? {
+          amount: (line.listPrice - line.unitPrice) * line.quantity,
+          pct: Math.round((1 - line.unitPrice / line.listPrice) * 100),
+        }
+      : null;
 
   const setQuantity = (quantity: number) => {
     if (quantity < 1 || quantity > Math.max(1, Math.min(line.maxQuantity, 10))) return;
@@ -96,13 +106,12 @@ const LineRow = ({
               >
                 {line.name}
               </Link>
+              <p className="mt-0.5 text-xs text-ink-400">(Pre-owned)</p>
 
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <Badge tone="neutral">{conditionLabel(line.condition)}</Badge>
+                <GradeBadge condition={line.condition} />
                 {line.platform && <span className="text-xs text-ink-400">{line.platform}</span>}
               </div>
-
-              <p className="mt-1.5 text-xs text-ink-500">{formatPrice(line.unitPrice)} each</p>
             </div>
 
             <button
@@ -117,7 +126,7 @@ const LineRow = ({
           </div>
 
           <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-3">
-            <div className="flex h-9 items-center rounded-lg border border-ink-200 bg-white">
+            <div className="flex h-9 items-center rounded-lg border border-ink-200 bg-ink-100">
               <button
                 type="button"
                 onClick={() => setQuantity(line.quantity - 1)}
@@ -143,13 +152,25 @@ const LineRow = ({
               </button>
             </div>
 
-            <p className="text-base font-extrabold text-ink-900">{formatPrice(line.lineTotal)}</p>
+            <div className="text-right">
+              <p className="text-base font-extrabold text-brand-400">{formatPrice(line.lineTotal)}</p>
+              {line.listPrice > line.unitPrice && (
+                <p className="text-xs text-ink-400 line-through">
+                  {formatPrice(line.listPrice * line.quantity)}
+                </p>
+              )}
+              {saves && (
+                <span className="mt-1 inline-block rounded-md bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                  Save {formatPrice(saves.amount)} ({saves.pct}%)
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {hasIssue && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2.5 text-xs font-medium text-amber-800">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs font-medium text-amber-200">
           <span className="flex items-center gap-2">
             <FiAlertTriangle size={14} className="shrink-0" />
             {line.isUnavailable
@@ -160,7 +181,7 @@ const LineRow = ({
           <button
             type="button"
             onClick={line.isUnavailable ? remove : () => setQuantity(Math.max(1, line.stock))}
-            className="font-bold text-amber-900 underline underline-offset-2"
+            className="font-bold text-amber-100 underline underline-offset-2"
           >
             {line.isUnavailable ? 'Remove item' : `Set to ${Math.max(1, line.stock)}`}
           </button>
@@ -222,15 +243,15 @@ const Basket = () => {
     <div className={shell}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-black tracking-tight text-ink-900 sm:text-3xl">
-          Your basket
+          Your Basket
           <span className="ml-2 text-base font-semibold text-ink-400">
-            {summary.itemCount} {summary.itemCount === 1 ? 'item' : 'items'}
+            ({summary.itemCount} {summary.itemCount === 1 ? 'item' : 'items'})
           </span>
         </h1>
 
-        <Button variant="ghost" size="sm" onClick={() => setConfirmClear(true)}>
-          Clear basket
-        </Button>
+        <Link to="/search" className="text-sm font-bold text-brand-400 hover:text-brand-500">
+          Continue shopping
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -244,22 +265,49 @@ const Basket = () => {
             />
           ))}
 
-          <Link
-            to="/search"
-            className="inline-flex items-center gap-1.5 pt-2 text-sm font-bold text-brand-600 transition hover:text-brand-700"
+          <div className="relative overflow-hidden rounded-2xl border border-transparent p-[1px] [background-image:linear-gradient(90deg,var(--color-brand-500),var(--color-accent-500))]">
+            <div className="flex flex-col gap-4 rounded-2xl bg-ink-100 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-void">
+                  <FiRefreshCw size={20} />
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-400">
+                    Trade in and get more
+                  </p>
+                  <p className="mt-1 max-w-md text-sm text-ink-500">
+                    Get Respawn Credit for your old consoles, games and tech.
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/request-a-game"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full btn-glow-purple px-5 text-sm font-bold text-white"
+              >
+                Get a Valuation
+                <FiArrowRight size={15} />
+              </Link>
+            </div>
+          </div>
+
+          <CreditBanner />
+
+          <button
+            type="button"
+            onClick={() => setConfirmClear(true)}
+            className="text-sm font-semibold text-ink-400 hover:text-rose-300"
           >
-            Continue shopping
-            <FiArrowRight size={14} />
-          </Link>
+            Clear basket
+          </button>
         </div>
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="card p-5">
-            <h2 className="text-base font-bold text-ink-900">Order summary</h2>
+            <h2 className="text-base font-bold text-ink-900">Order Summary</h2>
 
             <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex items-center justify-between">
-                <dt className="text-ink-500">Subtotal</dt>
+                <dt className="text-ink-500">Subtotal ({summary.itemCount} {summary.itemCount === 1 ? 'item' : 'items'})</dt>
                 <dd className="font-semibold text-ink-900">{formatPrice(summary.subtotal)}</dd>
               </div>
 
@@ -268,13 +316,20 @@ const Basket = () => {
                   <dt className="text-ink-500">
                     Discount{summary.couponCode ? ` (${summary.couponCode})` : ''}
                   </dt>
-                  <dd className="font-semibold text-emerald-600">−{formatPrice(summary.discount)}</dd>
+                  <dd className="font-semibold text-emerald-400">−{formatPrice(summary.discount)}</dd>
                 </div>
               )}
 
+              <div className="flex items-center justify-between">
+                <dt className="text-ink-500">Delivery</dt>
+                <dd className="font-semibold text-emerald-400">
+                  {summary.shippingFee > 0 ? formatPrice(summary.shippingFee) : 'FREE'}
+                </dd>
+              </div>
+
               <div className="flex items-center justify-between border-t border-ink-100 pt-3">
                 <dt className="text-base font-bold text-ink-900">Total</dt>
-                <dd className="text-xl font-black text-ink-900">{formatPrice(summary.total)}</dd>
+                <dd className="text-xl font-black text-brand-400">{formatPrice(summary.total)}</dd>
               </div>
             </dl>
 
@@ -308,7 +363,7 @@ const Basket = () => {
             )}
 
             {summary.hasIssues && (
-              <p className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs font-medium text-amber-800">
+              <p className="mt-4 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-medium text-amber-200">
                 <FiAlertTriangle size={14} className="mt-0.5 shrink-0" />
                 Fix the flagged items above before you check out.
               </p>
@@ -317,12 +372,13 @@ const Basket = () => {
             <Button
               fullWidth
               size="lg"
-              className="mt-4"
+              className="mt-4 rounded-xl"
               onClick={handleCheckout}
               disabled={summary.hasIssues || lines.length === 0}
+              leftIcon={<FiLock size={16} />}
               rightIcon={<FiArrowRight size={16} />}
             >
-              Checkout
+              Secure Checkout
             </Button>
 
             {!isAuthenticated && (

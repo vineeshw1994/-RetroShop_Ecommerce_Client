@@ -536,17 +536,29 @@ const Checkout = () => {
 
             </dt>
 
-            <dd className="font-semibold text-emerald-600">−{formatPrice(summary.discount)}</dd>
+            <dd className="font-semibold text-emerald-400">−{formatPrice(summary.discount)}</dd>
 
           </div>
 
         )}
 
+        <div className="flex items-center justify-between">
+
+          <dt className="text-ink-500">Delivery</dt>
+
+          <dd className="font-semibold text-emerald-400">
+
+            {summary.shippingFee > 0 ? formatPrice(summary.shippingFee) : 'FREE'}
+
+          </dd>
+
+        </div>
+
         <div className="flex items-center justify-between border-t border-ink-100 pt-3">
 
           <dt className="text-base font-bold text-ink-900">Total</dt>
 
-          <dd className="text-xl font-black text-ink-900">{formatPrice(summary.total)}</dd>
+          <dd className="text-xl font-black text-brand-400">{formatPrice(summary.total)}</dd>
 
         </div>
 
@@ -634,7 +646,7 @@ const Checkout = () => {
 
           to="/basket"
 
-          className="text-sm font-bold text-brand-600 transition hover:text-brand-700"
+          className="text-sm font-bold text-brand-600 transition hover:text-brand-400"
 
         >
 
@@ -648,7 +660,7 @@ const Checkout = () => {
 
       {error && (
 
-        <div className="mb-5 flex items-start gap-2.5 rounded-lg bg-brand-50 p-4 text-sm font-medium text-brand-800 ring-1 ring-inset ring-brand-200">
+        <div className="mb-5 flex items-start gap-2.5 rounded-lg bg-brand-500/10 p-4 text-sm font-medium text-brand-200 ring-1 ring-inset ring-brand-500/30">
 
           <FiAlertTriangle size={16} className="mt-0.5 shrink-0" />
 
@@ -680,7 +692,7 @@ const Checkout = () => {
 
           onClick={() => setMobileSummaryOpen((open) => !open)}
 
-          className="flex w-full items-center justify-between rounded-xl border border-ink-200 bg-white px-4 py-3 text-left shadow-card"
+          className="flex w-full items-center justify-between rounded-xl border border-ink-200 bg-ink-100 px-4 py-3 text-left shadow-card"
 
         >
 
@@ -710,7 +722,7 @@ const Checkout = () => {
 
         {mobileSummaryOpen && (
 
-          <div className="mt-2 rounded-xl border border-ink-100 bg-white p-4 shadow-card">
+          <div className="mt-2 rounded-xl border border-ink-100 bg-ink-100 p-4 shadow-card">
 
             {summaryContent}
 
@@ -768,7 +780,7 @@ const Checkout = () => {
 
                           !useNewAddress && addressId === address.id
 
-                            ? 'border-brand-500 bg-brand-50/60 ring-1 ring-brand-200'
+                            ? 'border-brand-500 bg-brand-500/10/60 ring-1 ring-brand-500/30'
 
                             : 'border-ink-200 hover:border-ink-300'
 
@@ -806,7 +818,7 @@ const Checkout = () => {
 
                             {address.isDefault && (
 
-                              <span className="rounded-full bg-ink-900 px-2 py-0.5 text-[10px] font-bold text-white">
+                              <span className="rounded-full bg-void px-2 py-0.5 text-[10px] font-bold text-white">
 
                                 Default
 
@@ -848,7 +860,7 @@ const Checkout = () => {
 
                         useNewAddress
 
-                          ? 'border-brand-500 bg-brand-50/60 text-brand-700'
+                          ? 'border-brand-500 bg-brand-500/10/60 text-brand-400'
 
                           : 'border-ink-300 text-ink-600 hover:border-brand-300 hover:text-brand-600'
 
@@ -1018,7 +1030,7 @@ const Checkout = () => {
 
                     paymentMethod === method.value
 
-                      ? 'border-brand-500 bg-brand-50/60 ring-1 ring-brand-200'
+                      ? 'border-brand-500 bg-brand-500/10/60 ring-1 ring-brand-500/30'
 
                       : 'border-ink-200 hover:border-ink-300'
 
@@ -1182,7 +1194,7 @@ const Checkout = () => {
 
       {/* Mobile sticky checkout bar */}
 
-      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-ink-200 bg-white/95 p-3 shadow-lift backdrop-blur lg:bottom-0 lg:hidden">
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-ink-200 bg-ink-50/95 p-3 shadow-lift backdrop-blur lg:bottom-0 lg:hidden">
 
         <div className="mx-auto flex max-w-7xl items-center gap-3">
 

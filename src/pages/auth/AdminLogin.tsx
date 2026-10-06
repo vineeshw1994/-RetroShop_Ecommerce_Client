@@ -66,7 +66,7 @@ const AdminLogin = () => {
       footer={
         <>
           Shopping instead?{' '}
-          <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
+          <Link to="/login" className="font-semibold text-accent-400 hover:text-accent-500">
             Customer sign in
           </Link>
         </>

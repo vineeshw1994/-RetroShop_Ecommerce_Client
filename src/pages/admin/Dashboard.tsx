@@ -254,7 +254,7 @@ const Dashboard = () => {
                   className={cn(
                     'rounded-md px-2.5 py-1.5 text-xs font-semibold transition',
                     activePreset === preset.key
-                      ? 'bg-white text-ink-900 shadow-sm'
+                      ? 'bg-ink-100 text-ink-900 shadow-sm'
                       : 'text-ink-600 hover:text-ink-900'
                   )}
                 >
@@ -456,7 +456,7 @@ const Dashboard = () => {
                       className={cn(
                         'rounded-md px-2.5 py-1.5 text-xs font-semibold transition',
                         chartMode === mode.key
-                          ? 'bg-white text-ink-900 shadow-sm'
+                          ? 'bg-ink-100 text-ink-900 shadow-sm'
                           : 'text-ink-600 hover:text-ink-900'
                       )}
                     >

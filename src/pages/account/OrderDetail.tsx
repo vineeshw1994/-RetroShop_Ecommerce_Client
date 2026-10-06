@@ -124,9 +124,8 @@ const StatusTimeline = ({ order }: { order: Order }) => {
 
       <ol className="mt-5 flex items-start">
         {ORDER_TIMELINE.map((step, index) => {
-          const done = currentIndex > index;
+          const reached = currentIndex >= index;
           const current = currentIndex === index;
-          const reached = done || current;
           const event = order.events?.find((entry) => entry.status === step);
 
           return (
@@ -135,26 +134,26 @@ const StatusTimeline = ({ order }: { order: Order }) => {
                 <span
                   className={cn(
                     'absolute right-1/2 top-3.5 h-0.5 w-full',
-                    reached ? 'bg-brand-600' : 'bg-ink-200'
+                    currentIndex >= index ? 'bg-brand-600' : 'bg-ink-200'
                   )}
                 />
               )}
 
               <span
                 className={cn(
-                  'relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-4 ring-white transition',
-                  done && 'bg-brand-600 text-white',
-                  current && 'bg-brand-600 text-white shadow-[0_0_0_4px_var(--color-brand-100)]',
+                  'relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ring-4 ring-ink-100 transition',
+                  reached && 'bg-brand-600 text-white',
+                  current && 'shadow-[0_0_0_4px_var(--color-brand-100)]',
                   !reached && 'bg-ink-100 text-ink-400'
                 )}
               >
-                {done ? <FiCheck size={15} /> : index + 1}
+                {reached ? <FiCheck size={15} /> : index + 1}
               </span>
 
               <span
                 className={cn(
                   'mt-2 text-[11px] font-semibold leading-tight',
-                  current ? 'text-brand-700' : reached ? 'text-ink-700' : 'text-ink-400'
+                  current ? 'text-brand-400' : reached ? 'text-ink-700' : 'text-ink-400'
                 )}
               >
                 {ORDER_STATUS_LABELS[step]}
@@ -364,7 +363,7 @@ const OrderDetail = () => {
       {returnRequest && (
         <section className="card border-brand-100 bg-brand-50/40 p-5">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-brand-600">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink-100 text-brand-600">
               <FiRotateCcw size={18} />
             </span>
             <div>
@@ -450,7 +449,10 @@ const OrderDetail = () => {
               </h2>
 
               <ol className="mt-4 space-y-0">
-                {order.events.map((event, index) => (
+                {order.events.map((event, index) => {
+                  const isLatest = index === order.events!.length - 1;
+
+                  return (
                   <li key={event.id} className="relative flex gap-4 pb-5 last:pb-0">
                     {index < (order.events?.length || 0) - 1 && (
                       <span className="absolute left-[11px] top-6 h-full w-0.5 bg-ink-100" />
@@ -458,8 +460,8 @@ const OrderDetail = () => {
 
                     <span
                       className={cn(
-                        'relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ring-4 ring-white',
-                        index === 0 ? 'bg-brand-600 text-white' : 'bg-ink-200 text-ink-600'
+                        'relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ring-4 ring-ink-100',
+                        isLatest ? 'bg-brand-600 text-white shadow-glow' : 'bg-ink-200 text-ink-600'
                       )}
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -475,7 +477,8 @@ const OrderDetail = () => {
                       </p>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             </section>
           )}

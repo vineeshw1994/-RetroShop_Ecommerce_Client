@@ -16,11 +16,11 @@ interface StatCardProps {
 }
 
 const TONES = {
-  brand: 'bg-brand-50 text-brand-600',
-  success: 'bg-emerald-50 text-emerald-600',
-  warning: 'bg-amber-50 text-amber-600',
-  info: 'bg-blue-50 text-blue-600',
-  neutral: 'bg-ink-100 text-ink-600',
+  brand: 'bg-brand-50 text-brand-400',
+  success: 'bg-emerald-500/15 text-emerald-300',
+  warning: 'bg-amber-500/15 text-amber-300',
+  info: 'bg-cyan-500/15 text-cyan-300',
+  neutral: 'bg-ink-200 text-ink-500',
 } as const;
 
 const StatCard = ({
@@ -64,10 +64,10 @@ const StatCard = ({
             className={cn(
               'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-bold',
               change > 0
-                ? 'bg-emerald-50 text-emerald-700'
+                ? 'bg-emerald-500/15 text-emerald-300'
                 : change < 0
-                  ? 'bg-rose-50 text-rose-700'
-                  : 'bg-ink-100 text-ink-600'
+                  ? 'bg-rose-500/15 text-rose-300'
+                  : 'bg-ink-200 text-ink-500'
             )}
           >
             <Trend size={11} />

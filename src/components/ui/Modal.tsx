@@ -55,7 +55,7 @@ const Modal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeOnBackdrop ? onClose : undefined}
-            className="absolute inset-0 bg-ink-900/55 backdrop-blur-sm"
+            className="absolute inset-0 bg-void/55 backdrop-blur-sm"
           />
 
           <motion.div
@@ -66,7 +66,7 @@ const Modal = ({
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
             className={cn(
-              'relative z-10 flex max-h-[92vh] w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-white shadow-xl sm:rounded-2xl',
+              'relative z-10 flex max-h-[92vh] w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-ink-100 shadow-xl sm:rounded-2xl',
               WIDTHS[size]
             )}
           >

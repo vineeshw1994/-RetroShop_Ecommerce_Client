@@ -61,7 +61,7 @@ const Avatar = ({ customer }: { customer: AdminCustomer }) =>
       className="h-full w-full object-cover"
     />
   ) : (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink-900 text-[11px] font-bold text-white">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-void text-[11px] font-bold text-white">
       {initials(customer.fullName || customer.email)}
     </span>
   );

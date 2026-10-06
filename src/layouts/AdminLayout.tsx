@@ -147,13 +147,13 @@ const AdminLayout = () => {
         )}
       >
         <Link to="/admin" className="flex items-center gap-2.5 overflow-hidden">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-sm font-black text-white">
-            RS
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 text-sm font-black text-void">
+            R
           </span>
           {!collapsed && (
             <span className="whitespace-nowrap">
-              <span className="block text-sm font-bold leading-tight text-white">RetroShop</span>
-              <span className="block text-[10px] leading-tight text-ink-400">
+              <span className="block text-sm font-bold leading-tight tracking-[0.12em] text-white">RESPAWN</span>
+              <span className="block text-[10px] leading-tight text-brand-400">
                 {isSuperAdmin ? 'Owner dashboard' : 'Staff dashboard'}
               </span>
             </span>
@@ -193,8 +193,8 @@ const AdminLayout = () => {
                       'relative flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-sm font-medium transition',
                       collapsed && 'justify-center px-0',
                       isActive
-                        ? 'bg-brand-600 text-white shadow-sm'
-                        : 'text-ink-300 hover:bg-white/10 hover:text-white'
+                        ? 'bg-brand-500/15 text-brand-400 shadow-glow'
+                        : 'text-ink-400 hover:bg-white/10 hover:text-white'
                     )
                   }
                 >
@@ -250,7 +250,7 @@ const AdminLayout = () => {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'sticky top-0 hidden h-screen shrink-0 flex-col bg-ink-900 transition-[width] duration-200 lg:flex',
+          'sticky top-0 hidden h-screen shrink-0 flex-col bg-void transition-[width] duration-200 lg:flex',
           collapsed ? 'w-[72px]' : 'w-64'
         )}
       >
@@ -266,14 +266,14 @@ const AdminLayout = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="absolute inset-0 bg-ink-900/60"
+              className="absolute inset-0 bg-void/60"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="relative flex h-full w-64 flex-col bg-ink-900"
+              className="relative flex h-full w-64 flex-col bg-void"
             >
               <button
                 type="button"
@@ -290,7 +290,7 @@ const AdminLayout = () => {
       </AnimatePresence>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-200 bg-white/95 px-4 backdrop-blur lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-200 bg-ink-50/95 px-4 backdrop-blur lg:px-6">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
@@ -339,7 +339,7 @@ const AdminLayout = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-xs font-bold text-white">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-void text-xs font-bold text-white">
                   {initials(admin?.name || 'A')}
                 </span>
               )}
@@ -353,7 +353,7 @@ const AdminLayout = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-[calc(100%+8px)] w-56 overflow-hidden rounded-xl border border-ink-100 bg-white shadow-lift"
+                  className="absolute right-0 top-[calc(100%+8px)] w-56 overflow-hidden rounded-xl border border-ink-100 bg-ink-100 shadow-lift"
                 >
                   <div className="border-b border-ink-100 bg-ink-50 px-4 py-3">
                     <p className="truncate text-sm font-bold text-ink-900">{admin?.name}</p>

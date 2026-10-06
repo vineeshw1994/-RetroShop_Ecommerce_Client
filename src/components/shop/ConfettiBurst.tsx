@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
-const COLORS = ['#E11D48', '#F97316', '#EAB308', '#22C55E', '#3B82F6', '#A855F7', '#EC4899'];
+const COLORS = ['#00E5FF', '#22F0FF', '#D946EF', '#A855F7', '#22C55E', '#67E8F9', '#F472B6'];
 
 interface ConfettiBurstProps {
   active?: boolean;

@@ -19,7 +19,7 @@ const WarrantyRoundel = ({ months, className, size = 'sm' }: WarrantyRoundelProp
   return (
     <span
       className={cn(
-        'pointer-events-none absolute left-2 top-2 flex flex-col items-center justify-center rounded-full bg-brand-600 text-center font-bold uppercase leading-[1.1] text-white shadow-md',
+        'pointer-events-none absolute left-2 top-2 flex flex-col items-center justify-center rounded-full bg-brand-600 text-center font-bold uppercase leading-[1.1] text-void shadow-glow',
         SIZE_CLASSES[size],
         className
       )}

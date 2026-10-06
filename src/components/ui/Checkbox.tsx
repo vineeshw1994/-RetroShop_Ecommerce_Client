@@ -1,8 +1,8 @@
-import { forwardRef, type InputHTMLAttributes, useId } from 'react';
+import { forwardRef, type InputHTMLAttributes, type ReactNode, useId } from 'react';
 import cn from '@/lib/cn';
 
 export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+  label?: ReactNode;
   description?: string;
   error?: string;
 }
@@ -81,7 +81,7 @@ export const Switch = ({
     >
       <span
         className={cn(
-          'inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
+          'inline-block h-5 w-5 rounded-full bg-ink-100 shadow-sm transition-transform',
           checked ? 'translate-x-5' : 'translate-x-0.5'
         )}
       />

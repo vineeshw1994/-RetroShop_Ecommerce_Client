@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
+  FiBox,
+  FiCheckCircle,
   FiChevronLeft,
   FiChevronRight,
   FiHeart,
+  FiHelpCircle,
   FiMinus,
   FiPlus,
-  FiRefreshCw,
   FiShield,
   FiShoppingCart,
   FiStar,
@@ -20,13 +22,13 @@ import { pushToast } from '@/store/slices/uiSlice';
 import { shopService } from '@/services/shop.service';
 import { accountService } from '@/services/account.service';
 import { getErrorMessage } from '@/lib/api';
-import { useAsync, useDocumentTitle, useShopSettings } from '@/hooks';
-import { conditionLabel, formatDate, formatPrice, warrantyLabel } from '@/lib/format';
+import { useAsync, useDocumentTitle } from '@/hooks';
+import { conditionLabel, conditionQuality, formatDate, formatPrice, isConsoleProduct, warrantyLabel } from '@/lib/format';
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
-import WarrantyRoundel from '@/components/shop/WarrantyRoundel';
+import GradeBadge from '@/components/shop/GradeBadge';
+import CreditBanner from '@/components/shop/CreditBanner';
 import {
-  Badge,
   Button,
   EmptyState,
   ErrorState,
@@ -51,11 +53,15 @@ const TAB_LABELS: Record<Tab, string> = {
 const Gallery = ({
   images,
   name,
-  warrantyMonths,
+  wishlisted,
+  wishlistBusy,
+  onWishlist,
 }: {
   images: ProductImage[];
   name: string;
-  warrantyMonths: number;
+  wishlisted: boolean;
+  wishlistBusy: boolean;
+  onWishlist: () => void;
 }) => {
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
@@ -70,8 +76,55 @@ const Gallery = ({
     setActive((index) => (index + step + images.length) % images.length);
   };
 
+  const maxThumbs = 4;
+  const overflow = images.length > maxThumbs ? images.length - (maxThumbs - 1) : 0;
+  const thumbSlots =
+    overflow > 0
+      ? [...images.slice(0, maxThumbs - 1), images[maxThumbs - 1]]
+      : images.slice(0, maxThumbs);
+
+  const thumbs = images.length > 1 && (
+    <div className="flex shrink-0 flex-col gap-2">
+      {thumbSlots.map((image, slotIndex) => {
+        const index =
+          overflow > 0 && slotIndex === thumbSlots.length - 1 ? maxThumbs - 1 : slotIndex;
+        const isOverflowTile = overflow > 0 && slotIndex === thumbSlots.length - 1;
+
+        return (
+          <button
+            key={image.id}
+            type="button"
+            onClick={() => setActive(isOverflowTile ? maxThumbs - 1 : index)}
+            aria-label={
+              isOverflowTile ? `Show image ${maxThumbs}, ${overflow} more` : `Show image ${index + 1}`
+            }
+            aria-current={index === active}
+            className={cn(
+              'relative shrink-0 overflow-hidden rounded-xl border-2 transition',
+              index === active ? 'border-brand-500 shadow-glow' : 'border-ink-200 hover:border-brand-500/40'
+            )}
+          >
+            <SmartImage
+              src={image.url}
+              alt={image.alt || `${name} thumbnail ${index + 1}`}
+              wrapperClassName="h-14 w-14 sm:h-16 sm:w-16"
+              className="h-full w-full bg-ink-100 object-contain p-1"
+            />
+            {isOverflowTile && (
+              <span className="absolute inset-0 flex items-center justify-center bg-void/75 text-sm font-black text-white">
+                +{overflow}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div className="space-y-3">
+    <div className="flex flex-row gap-3">
+      {thumbs}
+
       <div
         ref={frameRef}
         tabIndex={0}
@@ -90,7 +143,7 @@ const Gallery = ({
           });
         }}
         onMouseLeave={() => setZoom(null)}
-        className="card relative aspect-square overflow-hidden"
+        className="card relative aspect-square flex-1 overflow-hidden bg-gradient-to-br from-ink-100 via-ink-50 to-accent-600/10"
       >
         <div
           className="h-full w-full transition-transform duration-300 ease-out"
@@ -104,12 +157,26 @@ const Gallery = ({
             src={current?.url ?? null}
             alt={current?.alt || name}
             eager
-            wrapperClassName="h-full w-full bg-white"
-            className="h-full w-full object-contain p-3"
+            wrapperClassName="h-full w-full bg-transparent"
+            className="h-full w-full object-contain p-4"
           />
         </div>
 
-        <WarrantyRoundel months={warrantyMonths} size="md" className="left-3 top-3" />
+        <button
+          type="button"
+          onClick={onWishlist}
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+          className={cn(
+            'absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-void/80 ring-1 ring-brand-500/30 transition',
+            wishlisted ? 'text-accent-400' : 'text-ink-400 hover:text-brand-400'
+          )}
+        >
+          {wishlistBusy ? (
+            <Spinner size="sm" />
+          ) : (
+            <FiHeart size={18} className={wishlisted ? 'fill-current' : undefined} />
+          )}
+        </button>
 
         {images.length > 1 && (
           <>
@@ -117,7 +184,7 @@ const Gallery = ({
               type="button"
               onClick={() => move(-1)}
               aria-label="Previous image"
-              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink-700 shadow-sm transition hover:bg-white"
+              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink-100/90 text-ink-700 shadow-sm transition hover:bg-ink-100"
             >
               <FiChevronLeft size={18} />
             </button>
@@ -125,38 +192,13 @@ const Gallery = ({
               type="button"
               onClick={() => move(1)}
               aria-label="Next image"
-              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink-700 shadow-sm transition hover:bg-white"
+              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-ink-100/90 text-ink-700 shadow-sm transition hover:bg-ink-100"
             >
               <FiChevronRight size={18} />
             </button>
           </>
         )}
       </div>
-
-      {images.length > 1 && (
-        <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-          {images.map((image, index) => (
-            <button
-              key={image.id}
-              type="button"
-              onClick={() => setActive(index)}
-              aria-label={`Show image ${index + 1}`}
-              aria-current={index === active}
-              className={cn(
-                'shrink-0 overflow-hidden rounded-lg border-2 transition',
-                index === active ? 'border-brand-600' : 'border-ink-100 hover:border-ink-300'
-              )}
-            >
-              <SmartImage
-                src={image.url}
-                alt={image.alt || `${name} thumbnail ${index + 1}`}
-                wrapperClassName="h-16 w-16 sm:h-20 sm:w-20"
-                className="h-full w-full object-contain p-1 bg-white"
-              />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
@@ -176,7 +218,6 @@ const DetailSkeleton = () => (
 );
 
 const ProductDetail = () => {
-  const { returnDays } = useShopSettings();
   const { slug } = useParams<{ slug: string }>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -252,12 +293,6 @@ const ProductDetail = () => {
   const adding = pendingProductId === product.id;
   const onSale = product.discountPercent > 0;
 
-  const stockLabel = !product.inStock
-    ? 'Out of stock'
-    : product.isLowStock
-      ? `Only ${product.stock} left`
-      : 'In stock';
-
   const handleAdd = async () => {
     const result = await dispatch(addToBasket({ productId: product.id, quantity, isAuthenticated }));
 
@@ -298,28 +333,6 @@ const ProductDetail = () => {
     { label: 'Category', value: product.category?.name || '—' },
   ];
 
-  const trustPoints = [
-    ...(warrantyLabel(product.warrantyMonths)
-      ? [
-          {
-            icon: FiShield,
-            title: warrantyLabel(product.warrantyMonths)!,
-            text: 'Every item is tested before it ships',
-          },
-        ]
-      : []),
-    { icon: FiTruck, title: 'Tracked delivery', text: 'Dispatch within 1–2 working days' },
-    ...(returnDays > 0
-      ? [
-          {
-            icon: FiRefreshCw,
-            title: `${returnDays} day returns`,
-            text: 'Change your mind, no fuss',
-          },
-        ]
-      : []),
-  ];
-
   return (
     <div className={shell}>
       <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-1 text-xs">
@@ -343,7 +356,13 @@ const ProductDetail = () => {
 
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-10">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <Gallery images={images} name={product.name} warrantyMonths={product.warrantyMonths} />
+          <Gallery
+            images={images}
+            name={product.name}
+            wishlisted={wishlisted}
+            wishlistBusy={togglingId === product.id}
+            onWishlist={() => void handleWishlist()}
+          />
         </motion.div>
 
         <motion.div
@@ -352,150 +371,167 @@ const ProductDetail = () => {
           transition={{ delay: 0.05 }}
           className="flex flex-col"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
-            {[product.category?.name, product.platform].filter(Boolean).join(' · ') || 'Pre-owned'}
-          </p>
-
-          <h1 className="mt-1.5 text-2xl font-black leading-tight text-ink-900 sm:text-3xl">
+          <h1 className="text-2xl font-black leading-tight text-ink-900 sm:text-3xl">
             {product.name}
           </h1>
+          <p className="mt-1 text-sm text-ink-400">(Pre-owned)</p>
 
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <StarRating value={product.ratingAverage} count={product.ratingCount} size={15} />
-            <Badge tone="neutral">{conditionLabel(product.condition)}</Badge>
-            {product.soldCount > 0 && (
-              <span className="text-xs text-ink-400">{product.soldCount} sold</span>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setTab('reviews');
+                document.getElementById('product-reviews')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-sm font-semibold text-brand-400 hover:text-brand-500"
+            >
+              Write a review
+            </button>
+          </div>
+
+          <div className="mt-3 flex items-center gap-2">
+            <GradeBadge condition={product.condition} />
+            <span className="text-ink-400" title={conditionLabel(product.condition)}>
+              <FiHelpCircle size={14} />
+            </span>
           </div>
 
           <div className="mt-5 flex flex-wrap items-end gap-3">
-            <span className="text-3xl font-black leading-none text-ink-900">
+            <span className="text-3xl font-black leading-none text-brand-400">
               {formatPrice(product.effectivePrice)}
             </span>
-
             {onSale && (
               <>
                 <span className="text-base text-ink-400 line-through">
                   {formatPrice(product.price)}
                 </span>
-                <Badge tone="brand">Save {product.discountPercent}%</Badge>
+                <span className="rounded-full bg-rose-500 px-2.5 py-1 text-xs font-bold text-white">
+                  Save {formatPrice(product.price - product.effectivePrice)} ({product.discountPercent}%)
+                </span>
               </>
             )}
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
-            <span
-              className={cn(
-                'font-bold',
-                !product.inStock
-                  ? 'text-ink-400'
-                  : product.isLowStock
-                    ? 'text-amber-600'
-                    : 'text-emerald-600'
-              )}
-            >
-              {stockLabel}
-            </span>
-
-            {warrantyLabel(product.warrantyMonths) && (
-              <span className="flex items-center gap-1.5 font-medium text-ink-600">
-                <FiShield size={14} className="text-brand-600" />
-                {warrantyLabel(product.warrantyMonths)}
-              </span>
+          <p
+            className={cn(
+              'mt-3 flex items-center gap-2 text-sm font-bold',
+              !product.inStock ? 'text-ink-400' : product.isLowStock ? 'text-amber-400' : 'text-emerald-400'
             )}
+          >
+            <span className="h-2 w-2 rounded-full bg-current" />
+            {!product.inStock
+              ? 'Out of stock'
+              : product.isLowStock
+                ? `Only ${product.stock} left`
+                : 'In stock — ready to dispatch'}
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { icon: FiShield, label: warrantyLabel(product.warrantyMonths) || '12 Month Warranty' },
+              { icon: FiCheckCircle, label: 'Fully Tested & Cleaned' },
+              { icon: FiTruck, label: 'Free Delivery' },
+              { icon: FiBox, label: 'Complete with all cables' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-start gap-2 text-[11px] font-semibold text-ink-600">
+                <item.icon size={14} className="mt-0.5 shrink-0 text-brand-400" />
+                <span>{item.label}</span>
+              </div>
+            ))}
           </div>
 
-          {product.shortDescription && (
-            <p className="mt-4 text-sm leading-relaxed text-ink-600">{product.shortDescription}</p>
-          )}
-
-          {/* Buying controls */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <div className="flex h-11 items-center rounded-lg border border-ink-200 bg-white">
-              <button
-                type="button"
-                onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                disabled={quantity <= 1 || !product.inStock}
-                aria-label="Decrease quantity"
-                className="flex h-full w-10 items-center justify-center text-ink-600 transition hover:text-brand-600 disabled:cursor-not-allowed disabled:text-ink-300"
-              >
-                <FiMinus size={15} />
-              </button>
-
-              <span className="w-10 text-center text-sm font-bold text-ink-900" aria-live="polite">
-                {quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
-                disabled={quantity >= maxQuantity || !product.inStock}
-                aria-label="Increase quantity"
-                className="flex h-full w-10 items-center justify-center text-ink-600 transition hover:text-brand-600 disabled:cursor-not-allowed disabled:text-ink-300"
-              >
-                <FiPlus size={15} />
-              </button>
+          <div className="card mt-6 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-bold text-ink-900">Condition Details</h2>
+              <span className="text-xs font-semibold text-brand-400">View full report</span>
             </div>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              {(isConsoleProduct(product.name, product.category?.name)
+                ? [
+                    ['Console', conditionQuality(product.condition)],
+                    ['Dock', conditionQuality(product.condition)],
+                    ['Screen', conditionQuality(product.condition)],
+                    ['Cables', product.condition === 'fair' ? 'Not included' : 'Included'],
+                    ['Joy-Cons', conditionQuality(product.condition)],
+                    ['Original Box', product.condition === 'new' || product.condition === 'like_new' ? 'Included' : 'Included'],
+                  ]
+                : [
+                    ['Condition', conditionQuality(product.condition)],
+                    ['Brand', product.brand || '—'],
+                    ['Platform', product.platform || '—'],
+                    ['Warranty', warrantyLabel(product.warrantyMonths) || 'Not covered'],
+                    ['SKU', product.sku],
+                    ['Category', product.category?.name || '—'],
+                  ]
+              ).map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-3">
+                  <dt className="text-ink-500">{label}</dt>
+                  <dd
+                    className={cn(
+                      'font-semibold',
+                      value === 'Excellent' || value === 'Included' ? 'text-emerald-400' : 'text-ink-900'
+                    )}
+                  >
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
 
+          <div className="mt-6 grid grid-cols-2 gap-3">
             <Button
-              className="flex-1"
               onClick={handleAdd}
               loading={adding && !buyingNow}
               disabled={!product.inStock}
               leftIcon={<FiShoppingCart size={16} />}
+              className="rounded-xl !bg-brand-500 !text-void shadow-glow hover:!brightness-110"
             >
-              Add to basket
+              Add to Basket
             </Button>
-
-            <button
-              type="button"
-              onClick={handleWishlist}
-              aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-              className={cn(
-                'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition',
-                wishlisted
-                  ? 'border-brand-200 bg-brand-50 text-brand-600'
-                  : 'border-ink-200 bg-white text-ink-500 hover:text-brand-600'
-              )}
+            <Button
+              variant="outline"
+              onClick={handleBuyNow}
+              loading={buyingNow}
+              disabled={!product.inStock}
+              className="rounded-xl border-accent-500/70 text-accent-400 hover:border-accent-400 hover:bg-accent-600/10"
             >
-              {togglingId === product.id ? (
-                <Spinner size="sm" />
-              ) : (
-                <FiHeart size={17} className={wishlisted ? 'fill-current' : undefined} />
-              )}
-            </button>
+              Buy Now
+            </Button>
           </div>
 
-          <Button
-            variant="dark"
-            fullWidth
-            className="mt-3"
-            onClick={handleBuyNow}
-            loading={buyingNow}
-            disabled={!product.inStock}
-          >
-            Buy now
-          </Button>
-
-          {/* Trust row */}
-          <div className="mt-6 grid gap-3 rounded-[--radius-card] bg-ink-50 p-4 sm:grid-cols-3">
-            {trustPoints.map((point) => (
-              <div key={point.title} className="flex items-start gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand-600">
-                  <point.icon size={15} />
-                </span>
-                <span>
-                  <span className="block text-xs font-bold text-ink-900">{point.title}</span>
-                  <span className="block text-[11px] leading-snug text-ink-500">{point.text}</span>
-                </span>
+          {maxQuantity > 1 && product.inStock && (
+            <div className="mt-3 flex items-center gap-3 text-sm text-ink-500">
+              <span>Qty</span>
+              <div className="flex h-9 items-center rounded-full border border-ink-300 bg-ink-50">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                  className="flex h-full w-9 items-center justify-center text-ink-600"
+                >
+                  <FiMinus size={14} />
+                </button>
+                <span className="w-8 text-center text-sm font-bold text-ink-900">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
+                  disabled={quantity >= maxQuantity}
+                  aria-label="Increase quantity"
+                  className="flex h-full w-9 items-center justify-center text-ink-600"
+                >
+                  <FiPlus size={14} />
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </motion.div>
       </div>
 
       {/* Tabs */}
-      <section className="card mt-10 overflow-hidden">
+      <section id="product-reviews" className="card mt-10 overflow-hidden">
         <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-ink-100 px-2">
           {TABS.map((entry) => (
             <button
@@ -659,6 +695,8 @@ const ProductDetail = () => {
           )}
         </div>
       </section>
+
+      <CreditBanner className="mt-10" />
 
       {related.length > 0 && (
         <section className="mt-10">

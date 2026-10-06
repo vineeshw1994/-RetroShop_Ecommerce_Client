@@ -1,41 +1,46 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens. The storefront leans on a confident red primary with a
- * near-black ink scale, echoing the trade-in shop look from the brief.
+ * Respawn storefront + admin: deep navy surfaces, cyan primary,
+ * magenta/purple accents. Ink scale is inverted vs the original light theme
+ * so existing text-ink-900 / bg-ink-50 classes land on the dark look.
  */
 @theme {
-  --color-brand-50: #fff1f3;
-  --color-brand-100: #ffe0e5;
-  --color-brand-200: #ffc6cf;
-  --color-brand-300: #ff9dac;
-  --color-brand-400: #ff647d;
-  --color-brand-500: #f5325a;
-  --color-brand-600: #e4002b;
-  --color-brand-700: #c00024;
-  --color-brand-800: #9e0621;
-  --color-brand-900: #840c21;
+  --color-brand-50: #04242c;
+  --color-brand-100: #063440;
+  --color-brand-200: #0a5566;
+  --color-brand-300: #0e8fa8;
+  --color-brand-400: #22d3ee;
+  --color-brand-500: #22f0ff;
+  --color-brand-600: #00e5ff;
+  --color-brand-700: #67f6ff;
+  --color-brand-800: #a5fbff;
+  --color-brand-900: #e0feff;
 
-  --color-ink-50: #f7f8fa;
-  --color-ink-100: #eef0f4;
-  --color-ink-200: #dfe3ea;
-  --color-ink-300: #c6ccd8;
-  --color-ink-400: #97a1b3;
-  --color-ink-500: #6b7689;
-  --color-ink-600: #4c5566;
-  --color-ink-700: #383f4d;
-  --color-ink-800: #21262f;
-  --color-ink-900: #12161c;
+  --color-ink-50: #050814;
+  --color-ink-100: #0b1224;
+  --color-ink-200: #132038;
+  --color-ink-300: #1e3050;
+  --color-ink-400: #6b7c99;
+  --color-ink-500: #8fa0bb;
+  --color-ink-600: #b8c5d9;
+  --color-ink-700: #d5deeb;
+  --color-ink-800: #e8eef7;
+  --color-ink-900: #f4f7fb;
 
-  --color-accent-500: #0b63f6;
-  --color-accent-600: #0a4fc4;
+  --color-void: #030712;
 
-  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --color-accent-400: #e879f9;
+  --color-accent-500: #d946ef;
+  --color-accent-600: #c026d3;
 
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05), 0 8px 24px -12px rgb(16 24 40 / 0.12);
-  --shadow-lift: 0 12px 32px -12px rgb(16 24 40 / 0.22);
+  --font-sans: 'Outfit', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-  --radius-card: 0.875rem;
+  --shadow-card: 0 0 0 1px rgb(34 240 255 / 0.08), 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  --shadow-lift: 0 0 0 1px rgb(34 240 255 / 0.22), 0 18px 40px -12px rgb(0 229 255 / 0.18);
+  --shadow-glow: 0 0 24px rgb(0 229 255 / 0.35);
+
+  --radius-card: 1rem;
 }
 
 @layer base {
@@ -45,20 +50,24 @@
 
   html {
     scroll-behavior: smooth;
+    color-scheme: dark;
   }
 
   body {
     @apply bg-ink-50 text-ink-800 font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgb(0 229 255 / 0.12), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(192 38 211 / 0.16), transparent 46%);
+    background-attachment: fixed;
   }
 
-  /* Keyboard users get a visible ring; mouse users do not. */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-brand-600;
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     @apply bg-ink-100;
@@ -67,36 +76,59 @@
     @apply bg-ink-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-ink-400;
+    @apply bg-brand-400;
+  }
+
+  option {
+    background-color: #0b1224;
+    color: #f4f7fb;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-[--radius-card] shadow-card border border-ink-100;
+    @apply bg-ink-100 rounded-[--radius-card] border border-ink-200 shadow-card;
   }
 
   .input-base {
-    @apply w-full rounded-lg border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-800
+    @apply w-full rounded-2xl border border-ink-300 bg-ink-100 px-3.5 py-3 text-sm text-ink-900
            placeholder:text-ink-400 transition
-           focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 focus:outline-none
-           disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400;
+           focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 focus:outline-none
+           disabled:cursor-not-allowed disabled:bg-ink-100 disabled:text-ink-400;
   }
 
   .input-error {
-    @apply border-brand-500 focus:border-brand-600 focus:ring-brand-600/10;
+    @apply border-rose-500 focus:border-rose-400 focus:ring-rose-500/15;
   }
 
-  /* Hide the horizontal scrollbar on carousels while keeping the scroll. */
+  .btn-glow {
+    background-image: linear-gradient(90deg, #00e5ff 0%, #22f0ff 42%, #d946ef 100%);
+    box-shadow: 0 0 22px rgb(0 229 255 / 0.35);
+  }
+
+  .btn-glow-purple {
+    background-image: linear-gradient(90deg, #a855f7 0%, #d946ef 100%);
+    box-shadow: 0 0 22px rgb(217 70 239 / 0.3);
+  }
+
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-300) var(--color-ink-100);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  /* Horizontal rails should not trap vertical page scroll on touch devices. */
   .scroll-x-rail {
     overscroll-behavior-x: contain;
     touch-action: pan-y;
@@ -107,9 +139,9 @@
   .shimmer {
     background: linear-gradient(
       90deg,
-      var(--color-ink-100) 25%,
-      var(--color-ink-200) 37%,
-      var(--color-ink-100) 63%
+      var(--color-ink-200) 25%,
+      var(--color-ink-300) 37%,
+      var(--color-ink-200) 63%
     );
     background-size: 400% 100%;
     animation: shimmer 1.4s ease-in-out infinite;
@@ -122,5 +154,12 @@
     100% {
       background-position: 0 50%;
     }
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(90deg, #22f0ff, #d946ef);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }

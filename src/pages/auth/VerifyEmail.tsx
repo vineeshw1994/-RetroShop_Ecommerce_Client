@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { FiAlertCircle, FiMail, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiArrowLeft, FiMail } from 'react-icons/fi';
 import AuthLayout from '@/layouts/AuthLayout';
 import { Button } from '@/components/ui';
 import OtpInput from '@/components/auth/OtpInput';
@@ -16,9 +16,7 @@ import { pushToast } from '@/store/slices/uiSlice';
 import { useDocumentTitle } from '@/hooks';
 
 const schema = z.object({
-  code: z
-    .string()
-    .regex(/^\d{6}$/, 'Enter the 6-digit code from your email'),
+  code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from your email'),
 });
 
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -34,11 +32,8 @@ const VerifyEmail = () => {
   const submitting = useAppSelector((state) => state.auth.submitting);
   const authError = useAppSelector((state) => state.auth.error);
 
-  // Captured once: the slice clears the pending email on success, and this
-  // screen must not bounce to /signup while it is navigating away.
   const [email] = useState(() => pendingEmail || searchParams.get('email') || '');
-
-  const [cooldown, setCooldown] = useState(0);
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
   const [resending, setResending] = useState(false);
 
   const { control, handleSubmit, reset } = useForm({
@@ -64,7 +59,7 @@ const VerifyEmail = () => {
     const result = await dispatch(verifyEmail({ email, code: values.code }));
 
     if (verifyEmail.fulfilled.match(result)) {
-      dispatch(pushToast('Email verified, welcome to RetroShop'));
+      dispatch(pushToast('Email verified, welcome to Respawn'));
       navigate('/account', { replace: true });
       return;
     }
@@ -75,8 +70,12 @@ const VerifyEmail = () => {
   const resend = async () => {
     setResending(true);
     try {
-      await authService.resendCode(email);
-      dispatch(pushToast('We have sent you a fresh code'));
+      const response = await authService.resendCode(email);
+      if (response.data?.devOtp) {
+        dispatch(pushToast(`Development OTP: ${response.data.devOtp}`, 'info'));
+      } else {
+        dispatch(pushToast('We have sent you a fresh code'));
+      }
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (error) {
       dispatch(pushToast(getErrorMessage(error), 'error'));
@@ -89,20 +88,23 @@ const VerifyEmail = () => {
 
   return (
     <AuthLayout
-      title="Check your email"
+      title="Verify your email"
       subtitle={
         <>
-          We sent a 6-digit code to <span className="font-semibold text-ink-800">{email}</span>. Pop
-          it in below to finish setting up your account.
+          We&apos;ve sent a 6-digit code to <span className="font-semibold text-brand-400">{email}</span>
+          . Enter the code below to complete your registration.
         </>
       }
-      footer={
-        <>
-          Wrong email address?{' '}
-          <Link to="/signup" className="font-semibold text-brand-600 hover:text-brand-700">
-            Start again
-          </Link>
-        </>
+      extra={
+        <div className="mt-10 rounded-3xl border border-brand-500/20 bg-ink-100/80 p-6 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-500/30 bg-brand-500/10 text-brand-400 shadow-glow">
+            <FiMail size={36} />
+          </div>
+          <h2 className="text-xl font-black text-ink-900">Almost there!</h2>
+          <p className="mt-2 text-sm text-ink-500">
+            Verify your email to access your account and start shopping.
+          </p>
+        </div>
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -111,7 +113,7 @@ const VerifyEmail = () => {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             role="alert"
-            className="flex items-start gap-2 rounded-lg border border-brand-200 bg-brand-50 px-3.5 py-3 text-sm font-medium text-brand-700"
+            className="flex items-start gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3.5 py-3 text-sm font-medium text-rose-300"
           >
             <FiAlertCircle className="mt-0.5 shrink-0" size={15} />
             {authError}
@@ -123,7 +125,6 @@ const VerifyEmail = () => {
           control={control}
           render={({ field, fieldState }) => (
             <OtpInput
-              label="Verification code"
               value={field.value}
               onChange={field.onChange}
               error={fieldState.error?.message}
@@ -133,32 +134,30 @@ const VerifyEmail = () => {
           )}
         />
 
-        <Button
-          type="submit"
-          size="lg"
-          fullWidth
-          loading={submitting}
-          disabled={submitting}
-          leftIcon={<FiMail size={16} />}
-        >
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <p className="text-ink-500">Didn&apos;t receive a code?</p>
+          <button
+            type="button"
+            onClick={resend}
+            disabled={resending || cooldown > 0}
+            className="font-semibold text-accent-400 hover:text-accent-500 disabled:text-ink-400"
+          >
+            {cooldown > 0 ? `Resend (${cooldown}s)` : resending ? 'Sending…' : 'Resend'}
+          </button>
+        </div>
+
+        <Button type="submit" size="lg" fullWidth loading={submitting} disabled={submitting}>
           Verify email
         </Button>
       </form>
 
-      <div className="mt-5 flex flex-col items-start gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-ink-500">Code not arrived yet?</p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={resend}
-          loading={resending}
-          disabled={resending || cooldown > 0}
-          leftIcon={<FiRefreshCw size={14} />}
-        >
-          {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
-        </Button>
-      </div>
+      <Link
+        to="/signup"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-400 hover:text-brand-500"
+      >
+        <FiArrowLeft size={14} />
+        Use a different email
+      </Link>
     </AuthLayout>
   );
 };

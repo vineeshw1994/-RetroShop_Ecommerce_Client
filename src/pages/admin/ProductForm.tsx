@@ -731,7 +731,7 @@ const ProductForm = () => {
                   (clearCardImage ? null : product?.cardImage)
                 }
                 alt="Card image"
-                wrapperClassName="h-28 w-28 shrink-0 rounded-xl border border-ink-100 bg-white"
+                wrapperClassName="h-28 w-28 shrink-0 rounded-xl border border-ink-100 bg-ink-100"
                 className="object-contain p-1"
               />
               <div className="flex flex-wrap gap-2">
@@ -862,7 +862,7 @@ const ProductForm = () => {
                         type="button"
                         onClick={() => removeDraft(draft.preview)}
                         aria-label={`Remove ${draft.file?.name || 'image'}`}
-                        className="absolute right-1 top-1 rounded-full bg-ink-900/70 p-1 text-white transition hover:bg-rose-600"
+                        className="absolute right-1 top-1 rounded-full bg-void/70 p-1 text-white transition hover:bg-rose-600"
                       >
                         <FiX size={12} />
                       </button>
@@ -903,7 +903,7 @@ const ProductForm = () => {
                           </span>
                         )}
 
-                        <div className="absolute inset-x-0 bottom-0 flex justify-end gap-1 bg-gradient-to-t from-ink-900/80 to-transparent p-1">
+                        <div className="absolute inset-x-0 bottom-0 flex justify-end gap-1 bg-gradient-to-t from-void/80 to-transparent p-1">
                           {!image.isPrimary && (
                             <button
                               type="button"
@@ -911,7 +911,7 @@ const ProductForm = () => {
                               onClick={() => void handleSetPrimary(image.id)}
                               aria-label="Make cover image"
                               title="Make cover"
-                              className="rounded-full bg-white/90 p-1 text-ink-700 transition hover:text-brand-600 disabled:opacity-50"
+                              className="rounded-full bg-ink-100/90 p-1 text-ink-700 transition hover:text-brand-600 disabled:opacity-50"
                             >
                               <FiStar size={12} />
                             </button>
@@ -922,7 +922,7 @@ const ProductForm = () => {
                             onClick={() => void handleRemoveImage(image.id)}
                             aria-label="Delete image"
                             title="Delete image"
-                            className="rounded-full bg-white/90 p-1 text-ink-700 transition hover:text-rose-600 disabled:opacity-50"
+                            className="rounded-full bg-ink-100/90 p-1 text-ink-700 transition hover:text-rose-600 disabled:opacity-50"
                           >
                             <FiTrash2 size={12} />
                           </button>
@@ -1025,7 +1025,7 @@ const ProductForm = () => {
         </div>
       </div>
 
-      <div className="sticky bottom-0 z-20 -mx-4 mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-ink-200 bg-white/95 px-4 py-3 backdrop-blur lg:-mx-6 lg:px-6">
+      <div className="sticky bottom-0 z-20 -mx-4 mt-5 flex flex-wrap items-center justify-end gap-3 border-t border-ink-200 bg-ink-50/95 px-4 py-3 backdrop-blur lg:-mx-6 lg:px-6">
         <Button
           type="button"
           variant="outline"

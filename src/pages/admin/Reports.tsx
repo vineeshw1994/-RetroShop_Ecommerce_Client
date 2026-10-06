@@ -295,7 +295,7 @@ const Reports = () => {
             className={cn(
               'flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-semibold transition',
               tab === entry.key
-                ? 'bg-white text-ink-900 shadow-sm'
+                ? 'bg-ink-100 text-ink-900 shadow-sm'
                 : 'text-ink-600 hover:text-ink-900'
             )}
           >

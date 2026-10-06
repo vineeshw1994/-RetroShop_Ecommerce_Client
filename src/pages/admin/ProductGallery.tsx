@@ -233,7 +233,7 @@ const ProductGallery = () => {
               'rounded-full border px-4 py-2 text-sm font-semibold transition',
               folder === entry.value
                 ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
-                : 'border-ink-200 bg-white text-ink-600 hover:border-brand-300 hover:text-brand-700'
+                : 'border-ink-200 bg-ink-100 text-ink-600 hover:border-brand-300 hover:text-brand-700'
             )}
           >
             {entry.label}
@@ -253,7 +253,7 @@ const ProductGallery = () => {
           onDrop={handleDrop}
           className={cn(
             'card mb-5 border-2 border-dashed px-5 py-8 text-center transition',
-            dragging ? 'border-brand-400 bg-brand-50' : 'border-ink-200 bg-white'
+            dragging ? 'border-brand-400 bg-brand-50' : 'border-ink-200 bg-ink-100'
           )}
         >
           <FiUploadCloud className="mx-auto text-ink-400" size={30} />
@@ -373,7 +373,7 @@ const ProductGallery = () => {
                         </span>
                       )}
 
-                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/85 to-transparent px-2 pb-2 pt-8">
+                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-void/85 to-transparent px-2 pb-2 pt-8">
                         <span className="block truncate text-xs font-semibold text-white">{file.name}</span>
                         <span className="block text-[10px] text-white/75">{formatBytes(file.size)}</span>
                       </span>

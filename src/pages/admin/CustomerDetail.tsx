@@ -219,7 +219,7 @@ const CustomerDetail = () => {
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-ink-900 text-lg font-bold text-white">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-void text-lg font-bold text-white">
               {initials(customer.fullName || customer.email)}
             </span>
           )}

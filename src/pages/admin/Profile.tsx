@@ -218,7 +218,7 @@ const Profile = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-ink-900 text-xl font-bold text-white">
+                <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-void text-xl font-bold text-white">
                   {initials(admin.name)}
                 </span>
               )}

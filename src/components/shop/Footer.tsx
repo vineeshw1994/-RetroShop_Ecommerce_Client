@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { FiTruck, FiShield, FiRefreshCw, FiCreditCard } from 'react-icons/fi';
 import { useAppSelector } from '@/store';
 import { useShopSettings } from '@/hooks';
+import BrandMark from '@/components/shop/BrandMark';
 
 const LINKS = [
   {
@@ -46,7 +47,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="mt-16 bg-ink-900 text-ink-300">
+    <footer className="mt-16 border-t border-brand-500/15 bg-void text-ink-400">
       <div className="border-b border-white/10">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 lg:grid-cols-4 lg:px-6">
           {promises.map((promise) => (
@@ -65,12 +66,7 @@ const Footer = () => {
 
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-5 lg:px-6">
         <div className="sm:col-span-2">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-black text-white">
-              RS
-            </span>
-            <span className="text-lg font-black text-white">RetroShop</span>
-          </Link>
+          <BrandMark />
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-400">
             Pre-owned games, consoles and tech, cleaned, fully tested and backed by our warranty.
             Trade in what you no longer play and pick up your next favourite.
@@ -111,7 +107,7 @@ const Footer = () => {
 
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-ink-500 sm:flex-row lg:px-6">
-          <p>© {new Date().getFullYear()} RetroShop. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Respawn. All rights reserved.</p>
           <p>Prices include VAT where applicable.</p>
         </div>
       </div>

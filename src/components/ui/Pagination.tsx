@@ -51,7 +51,7 @@ const Pagination = ({ meta, onPageChange, className }: PaginationProps) => {
           onClick={() => onPageChange(page - 1)}
           disabled={!meta.hasPrev}
           aria-label="Previous page"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-200 bg-ink-100 text-ink-600 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <FiChevronLeft />
         </button>
@@ -71,7 +71,7 @@ const Pagination = ({ meta, onPageChange, className }: PaginationProps) => {
                 'h-9 min-w-9 rounded-lg px-2.5 text-sm font-semibold transition',
                 entry === page
                   ? 'bg-brand-600 text-white shadow-sm'
-                  : 'border border-ink-200 bg-white text-ink-600 hover:bg-ink-50'
+                  : 'border border-ink-200 bg-ink-100 text-ink-600 hover:bg-ink-50'
               )}
             >
               {entry}
@@ -84,7 +84,7 @@ const Pagination = ({ meta, onPageChange, className }: PaginationProps) => {
           onClick={() => onPageChange(page + 1)}
           disabled={!meta.hasNext}
           aria-label="Next page"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-200 bg-white text-ink-600 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-200 bg-ink-100 text-ink-600 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <FiChevronRight />
         </button>

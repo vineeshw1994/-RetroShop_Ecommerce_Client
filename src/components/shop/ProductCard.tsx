@@ -1,23 +1,21 @@
 import { memo, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiHeart, FiShoppingCart, FiMinus, FiPlus } from 'react-icons/fi';
+import { FiHeart, FiShoppingCart, FiMinus, FiPlus, FiShield, FiCheckCircle, FiTruck } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addToBasket, removeBasketLine, updateBasketLine } from '@/store/slices/basketSlice';
 import { toggleWishlist } from '@/store/slices/wishlistSlice';
 import { pushToast } from '@/store/slices/uiSlice';
-import { formatPrice, conditionLabel } from '@/lib/format';
+import { formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import { SmartImage, StarRating, Spinner } from '@/components/ui';
-import WarrantyRoundel from '@/components/shop/WarrantyRoundel';
+import GradeBadge from '@/components/shop/GradeBadge';
 import type { Product } from '@/types';
 
 interface ProductCardProps {
   product: Product;
-  /** Compact layout for carousels; roomier for grid pages. */
   variant?: 'grid' | 'carousel';
   eager?: boolean;
-  /** Called after a successful wishlist toggle (e.g. to sync account wishlist page). */
   onWishlistChange?: (productId: number, inWishlist: boolean) => void;
 }
 
@@ -40,8 +38,12 @@ const ProductCard = ({
 
   const adding = pendingProductId === product.id;
   const onSale = product.discountPercent > 0;
+  const isNew = Date.now() - new Date(product.createdAt).getTime() < 21 * 24 * 60 * 60 * 1000;
+  const isBest = product.isFeatured && product.soldCount >= 3;
 
-  const handleAdd = async () => {
+  const handleAdd = async (event?: MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     const result = await dispatch(addToBasket({ productId: product.id, isAuthenticated }));
 
     if (addToBasket.fulfilled.match(result)) {
@@ -112,7 +114,9 @@ const ProductCard = ({
     }
   };
 
-  const handleWishlist = async () => {
+  const handleWishlist = async (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     if (!isAuthenticated) {
       dispatch(pushToast('Sign in to save items to your wishlist', 'info'));
       return;
@@ -140,8 +144,8 @@ const ProductCard = ({
       transition={{ duration: 0.3 }}
       whileHover={{ y: -4 }}
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-[--radius-card] border border-ink-100 bg-white',
-        'shadow-card transition-shadow hover:shadow-lift',
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl border border-ink-200 bg-ink-100',
+        'shadow-card transition-shadow hover:border-brand-500/40 hover:shadow-lift',
         variant === 'carousel' && 'w-[220px] shrink-0 xl:w-[240px]'
       )}
     >
@@ -151,15 +155,26 @@ const ProductCard = ({
             src={product.cardImage || product.primaryImage}
             alt={product.name}
             eager={eager}
-            wrapperClassName="aspect-square w-full bg-white"
-            className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+            wrapperClassName="aspect-square w-full bg-ink-50"
+            className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
 
-        <WarrantyRoundel months={product.warrantyMonths} />
+        <div className="absolute left-2 top-2 flex flex-col gap-1">
+          {isNew && (
+            <span className="rounded-md bg-brand-600 px-1.5 py-1 text-[9px] font-black uppercase tracking-wide text-void">
+              New arrival
+            </span>
+          )}
+          {isBest && !onSale && (
+            <span className="rounded-md bg-accent-600 px-1.5 py-1 text-[9px] font-black uppercase tracking-wide text-white">
+              Best seller
+            </span>
+          )}
+        </div>
 
         {onSale && (
-          <span className="absolute right-2 top-2 rounded-md bg-ink-900 px-1.5 py-1 text-[10px] font-bold text-white">
+          <span className="absolute right-10 top-2 rounded-md bg-rose-500 px-1.5 py-1 text-[10px] font-bold text-white">
             -{product.discountPercent}%
           </span>
         )}
@@ -169,8 +184,8 @@ const ProductCard = ({
           onClick={handleWishlist}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
           className={cn(
-            'absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm ring-1 ring-ink-100 transition',
-            wishlisted ? 'text-brand-600' : 'text-ink-400 hover:text-brand-600'
+            'absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-void/80 shadow-sm ring-1 ring-brand-500/30 transition',
+            wishlisted ? 'text-accent-400' : 'text-ink-400 hover:text-brand-400'
           )}
         >
           {togglingWishlist ? (
@@ -181,8 +196,8 @@ const ProductCard = ({
         </button>
 
         {!product.inStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/75">
-            <span className="rounded-full bg-ink-900 px-3 py-1.5 text-xs font-bold text-white">
+          <div className="absolute inset-0 flex items-center justify-center bg-ink-50/80">
+            <span className="rounded-full bg-void px-3 py-1.5 text-xs font-bold text-white">
               Out of stock
             </span>
           </div>
@@ -190,36 +205,49 @@ const ProductCard = ({
       </div>
 
       <div className="flex flex-1 flex-col p-3">
-        <p className="truncate text-[11px] font-medium text-ink-400">
-          {product.category?.name || product.platform || conditionLabel(product.condition)}
-        </p>
-
         <Link
           to={`/product/${product.slug}`}
-          className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-ink-800 transition hover:text-brand-600"
+          className="line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-ink-900 transition hover:text-brand-400"
         >
           {product.name}
         </Link>
+        <p className="mt-0.5 text-[11px] text-ink-400">(Pre-owned)</p>
 
-        <div className="mt-1.5 min-h-[18px]">
-          {product.ratingCount > 0 && (
-            <StarRating value={product.ratingAverage} size={12} showValue />
+        <div className="mt-1.5">
+          <GradeBadge condition={product.condition} />
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <p className="text-lg font-black leading-none text-brand-400">
+            {formatPrice(product.effectivePrice)}
+          </p>
+          {onSale && (
+            <p className="text-xs text-ink-400 line-through">{formatPrice(product.price)}</p>
           )}
         </div>
 
-        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-          <div>
-            <p className="text-base font-extrabold leading-none text-ink-900">
-              {formatPrice(product.effectivePrice)}
-            </p>
-            {onSale && (
-              <p className="mt-1 text-xs text-ink-400 line-through">{formatPrice(product.price)}</p>
-            )}
-          </div>
+        <div className="mt-1.5 min-h-[18px]">
+          {product.ratingCount > 0 && (
+            <StarRating value={product.ratingAverage} count={product.ratingCount} size={12} />
+          )}
+        </div>
 
+        <ul className="mt-2 space-y-0.5 text-[10px] font-medium text-ink-500">
+          <li className="flex items-center gap-1.5">
+            <FiShield size={11} className="text-brand-400" /> 12 Month Warranty
+          </li>
+          <li className="flex items-center gap-1.5">
+            <FiCheckCircle size={11} className="text-brand-400" /> Fully Tested &amp; Cleaned
+          </li>
+          <li className="flex items-center gap-1.5">
+            <FiTruck size={11} className="text-brand-400" /> Free Delivery
+          </li>
+        </ul>
+
+        <div className="mt-auto pt-3">
           {inBasket ? (
             <div
-              className="flex h-9 shrink-0 items-center overflow-hidden rounded-full bg-emerald-600 text-white"
+              className="flex h-10 items-center overflow-hidden rounded-xl bg-brand-600 text-void"
               onClick={(event) => event.stopPropagation()}
             >
               <button
@@ -227,11 +255,11 @@ const ProductCard = ({
                 onClick={(event) => void handleDecrease(event)}
                 disabled={adding}
                 aria-label={`Remove one ${product.name} from basket`}
-                className="flex h-full w-8 items-center justify-center transition hover:bg-emerald-700 disabled:opacity-60"
+                className="flex h-full w-10 items-center justify-center transition hover:bg-brand-500 disabled:opacity-60"
               >
                 <FiMinus size={14} />
               </button>
-              <span className="min-w-[1.25rem] text-center text-sm font-bold" aria-live="polite">
+              <span className="flex-1 text-center text-sm font-bold" aria-live="polite">
                 {adding ? '…' : basketQuantity}
               </span>
               <button
@@ -239,7 +267,7 @@ const ProductCard = ({
                 onClick={(event) => void handleIncrease(event)}
                 disabled={adding || !product.inStock || basketQuantity >= Math.min(product.stock, 10)}
                 aria-label={`Add one more ${product.name}`}
-                className="flex h-full w-8 items-center justify-center transition hover:bg-emerald-700 disabled:opacity-60"
+                className="flex h-full w-10 items-center justify-center transition hover:bg-brand-500 disabled:opacity-60"
               >
                 <FiPlus size={14} />
               </button>
@@ -247,21 +275,13 @@ const ProductCard = ({
           ) : (
             <button
               type="button"
-              onClick={handleAdd}
+              onClick={(event) => void handleAdd(event)}
               disabled={!product.inStock || adding}
-              aria-label={`Add ${product.name} to basket`}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-ink-300"
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-void transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-ink-300 disabled:text-ink-500"
             >
               {adding ? <Spinner size="xs" /> : <FiShoppingCart size={15} />}
+              Add to Basket
             </button>
-          )}
-        </div>
-
-        <div className="mt-2 min-h-[16px]">
-          {product.isLowStock && product.inStock && (
-            <p className="text-[11px] font-semibold text-amber-600">
-              Only {product.stock} left
-            </p>
           )}
         </div>
       </div>

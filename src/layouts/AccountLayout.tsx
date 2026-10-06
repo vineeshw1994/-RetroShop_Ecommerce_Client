@@ -20,11 +20,11 @@ import { SmartImage } from '@/components/ui';
 
 const NAV = [
   { to: '/account', label: 'Overview', icon: FiGrid, match: 'overview' as const },
-  { to: '/account/orders', label: 'My orders', icon: FiPackage, match: 'orders' as const },
-  { to: '/account/wishlist', label: 'Wishlist', icon: FiHeart, match: 'wishlist' as const },
-  { to: '/account/requests', label: 'Game requests', icon: FiGift, match: 'requests' as const },
+  { to: '/account/profile', label: 'Personal Details', icon: FiUser, match: 'profile' as const },
   { to: '/account/addresses', label: 'Addresses', icon: FiMapPin, match: 'addresses' as const },
-  { to: '/account/profile', label: 'Profile & security', icon: FiUser, match: 'profile' as const },
+  { to: '/account/orders', label: 'Order History', icon: FiPackage, match: 'orders' as const },
+  { to: '/account/requests', label: 'Trade-in History', icon: FiGift, match: 'requests' as const },
+  { to: '/account/wishlist', label: 'Saved Items', icon: FiHeart, match: 'wishlist' as const },
 ];
 
 const isAccountNavActive = (match: (typeof NAV)[number]['match'], pathname: string) => {
@@ -60,9 +60,12 @@ const AccountLayout = () => {
     navigate('/');
   };
 
+  const isOverviewHub = location.pathname === '/account';
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-10">
-      <div className="grid gap-6 lg:grid-cols-[264px_1fr]">
+      <div className={cn('grid gap-6', !isOverviewHub && 'lg:grid-cols-[264px_1fr]')}>
+        {!isOverviewHub && (
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="card overflow-hidden">
             <div className="flex items-center gap-3 border-b border-ink-100 bg-ink-50 p-4">
@@ -96,8 +99,8 @@ const AccountLayout = () => {
                     cn(
                       'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition',
                       isAccountNavActive(item.match, location.pathname)
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900'
+                        ? 'bg-brand-500/15 text-brand-400'
+                        : 'text-ink-500 hover:bg-ink-50 hover:text-ink-900'
                     )
                   }
                 >
@@ -109,7 +112,7 @@ const AccountLayout = () => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-brand-600 transition hover:bg-brand-50 lg:mt-1 lg:border-t lg:border-ink-100"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-accent-400 transition hover:bg-accent-600/10 lg:mt-1 lg:border-t lg:border-ink-200"
               >
                 <FiLogOut size={16} />
                 Sign out
@@ -117,6 +120,7 @@ const AccountLayout = () => {
             </nav>
           </div>
         </aside>
+        )}
 
         <div className="min-w-0">
           <Outlet />

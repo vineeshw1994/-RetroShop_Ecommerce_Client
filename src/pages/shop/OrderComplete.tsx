@@ -47,7 +47,7 @@ const OrderComplete = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="mt-6 rounded-2xl border border-ink-100 bg-white px-5 py-4 shadow-card"
+            className="mt-6 rounded-2xl border border-ink-100 bg-ink-100 px-5 py-4 shadow-card"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">
               Order number

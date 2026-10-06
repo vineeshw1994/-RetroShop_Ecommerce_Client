@@ -388,8 +388,8 @@ const GameRequests = () => {
               className={cn(
                 'flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition',
                 filters.status === tab.value
-                  ? 'bg-ink-900 text-white'
-                  : 'bg-white text-ink-600 ring-1 ring-inset ring-ink-200 hover:bg-ink-50'
+                  ? 'bg-void text-white'
+                  : 'bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200 hover:bg-ink-50'
               )}
             >
               {tab.label}

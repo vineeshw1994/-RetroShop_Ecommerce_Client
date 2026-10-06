@@ -5,7 +5,7 @@ export interface SignupPayload {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phone?: string;
   password: string;
   confirmPassword: string;
   marketingOptIn?: boolean;

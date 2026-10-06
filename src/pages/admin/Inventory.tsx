@@ -636,7 +636,7 @@ const Inventory = () => {
             className={cn(
               'flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition',
               (filters.tab === value || (value === 'levels' && !showMovements))
-                ? 'bg-ink-900 text-white shadow-sm'
+                ? 'bg-void text-white shadow-sm'
                 : 'bg-ink-100 text-ink-600 hover:bg-ink-200'
             )}
           >

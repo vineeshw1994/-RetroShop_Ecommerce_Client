@@ -18,6 +18,7 @@ import { useAsync, useDocumentTitle, useQueryFilters, useScrollLock } from '@/ho
 import { conditionLabel, formatNumber, formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
+import CreditBanner from '@/components/shop/CreditBanner';
 import {
   Badge,
   Button,
@@ -135,7 +136,7 @@ const FilterRail = ({ options, filters, setFilter, activeCount, onClear }: Filte
               <legend className="mb-2.5 text-xs font-bold uppercase tracking-wide text-ink-400">
                 Platform
               </legend>
-              <div className="max-h-56 space-y-2.5 overflow-y-auto pr-1">
+              <div className="space-y-2.5">
                 {options.platforms.map((platform) => (
                   <Checkbox
                     key={platform.value}
@@ -175,7 +176,7 @@ const FilterRail = ({ options, filters, setFilter, activeCount, onClear }: Filte
               <legend className="mb-2.5 text-xs font-bold uppercase tracking-wide text-ink-400">
                 Brand
               </legend>
-              <div className="max-h-56 space-y-2.5 overflow-y-auto pr-1">
+              <div className="space-y-2.5">
                 {options.brands.map((brand) => (
                   <Checkbox
                     key={brand.value}
@@ -325,7 +326,7 @@ const ProductRow = ({ product }: { product: Product }) => {
 
         <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-3">
           <div>
-            <p className="text-lg font-extrabold leading-none text-ink-900">
+            <p className="text-lg font-extrabold leading-none text-brand-400">
               {formatPrice(product.effectivePrice)}
             </p>
             {product.discountPercent > 0 && (
@@ -440,6 +441,11 @@ const Catalog = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
+      {!category.data && !filters.search && (
+        <div className="mb-6 space-y-4">
+          <CreditBanner />
+        </div>
+      )}
       {/* Page heading */}
       <header className="mb-6">
         {category.data ? (
@@ -477,7 +483,7 @@ const Catalog = () => {
                   <Link
                     key={child.id}
                     to={`/category/${child.slug}`}
-                    className="shrink-0 rounded-full border border-ink-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-brand-300 hover:text-brand-600"
+                    className="shrink-0 rounded-full border border-ink-200 bg-ink-100 px-3.5 py-1.5 text-xs font-semibold text-ink-700 transition hover:border-brand-300 hover:text-brand-600"
                   >
                     {child.name}
                   </Link>
@@ -505,7 +511,9 @@ const Catalog = () => {
 
       <div className="grid gap-6 lg:grid-cols-[256px_1fr]">
         <aside className="hidden lg:block">
-          <div className="card sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto p-5">{rail}</div>
+          <div className="card scrollbar-thin sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto p-5">
+            {rail}
+          </div>
         </aside>
 
         <div className="min-w-0">
@@ -553,7 +561,7 @@ const Catalog = () => {
                   aria-pressed={!isListView}
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-md transition',
-                    !isListView ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-50'
+                    !isListView ? 'bg-void text-white' : 'text-ink-500 hover:bg-ink-50'
                   )}
                 >
                   <FiGrid size={15} />
@@ -565,7 +573,7 @@ const Catalog = () => {
                   aria-pressed={isListView}
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-md transition',
-                    isListView ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-50'
+                    isListView ? 'bg-void text-white' : 'text-ink-500 hover:bg-ink-50'
                   )}
                 >
                   <FiList size={15} />
@@ -621,7 +629,7 @@ const Catalog = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDrawerOpen(false)}
-              className="absolute inset-0 bg-ink-900/55"
+              className="absolute inset-0 bg-void/55"
             />
 
             <motion.aside
@@ -629,7 +637,7 @@ const Catalog = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="relative flex h-full w-[88%] max-w-sm flex-col bg-white"
+              className="relative flex h-full w-[88%] max-w-sm flex-col bg-ink-100"
             >
               <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3.5">
                 <span className="text-base font-bold text-ink-900">Filters</span>
@@ -643,7 +651,7 @@ const Catalog = () => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4">{rail}</div>
+              <div className="scrollbar-thin flex-1 overflow-y-auto p-4">{rail}</div>
 
               <div className="border-t border-ink-100 p-4">
                 <Button fullWidth onClick={() => setDrawerOpen(false)}>
