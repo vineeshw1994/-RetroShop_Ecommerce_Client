@@ -10,7 +10,7 @@ import ProductCard from '@/components/shop/ProductCard';
 import TrustStrip from '@/components/shop/TrustStrip';
 import HomeShopTop from '@/components/shop/HomeShopTop';
 import { ErrorState, EmptyState, ProductCardSkeleton, Skeleton, SmartImage } from '@/components/ui';
-import type { Banner, Category, Product } from '@/types';
+import type { Banner, Product } from '@/types';
 
 const HERO_INTERVAL = 6000;
 
