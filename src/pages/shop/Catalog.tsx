@@ -18,6 +18,7 @@ import { useAsync, useDocumentTitle, useQueryFilters, useScrollLock } from '@/ho
 import { conditionLabel, formatNumber, formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
+import ShopSelect from '@/components/shop/ShopSelect';
 import SellCta from '@/components/shop/SellCta';
 import {
   Badge,
@@ -27,7 +28,6 @@ import {
   ErrorState,
   Pagination,
   ProductGridSkeleton,
-  Select,
   Skeleton,
   SmartImage,
   StarRating,
@@ -545,12 +545,11 @@ const Catalog = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Select
+              <ShopSelect
                 aria-label="Sort products"
                 options={SORT_OPTIONS}
                 value={filters.sort}
-                onChange={(event) => setFilter({ sort: event.target.value })}
-                className="h-9 w-44 py-0 text-xs"
+                onChange={(sort) => setFilter({ sort })}
               />
 
               <div className="hidden items-center rounded-lg border border-ink-200 p-0.5 sm:flex">

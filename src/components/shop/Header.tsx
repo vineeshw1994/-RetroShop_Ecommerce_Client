@@ -121,8 +121,7 @@ const Header = () => {
             <FiMenu size={22} />
           </button>
 
-          <BrandMark compact className="min-w-0 shrink-0 lg:hidden" />
-          <BrandMark compact={false} className="hidden min-w-0 lg:flex" />
+          <BrandMark compact={false} className="min-w-0 flex-1 lg:flex-initial" />
 
           <SearchBar className="mx-auto hidden min-w-0 max-w-2xl flex-1 md:block" />
 
