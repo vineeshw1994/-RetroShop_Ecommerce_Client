@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -111,9 +111,10 @@ const EMPTY_FORM: RequestValues = {
 };
 
 const GameRequests = () => {
-  useDocumentTitle('Game requests');
+  useDocumentTitle('Sell quotes');
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { filters, setFilter } = useQueryFilters(DEFAULTS);
   const page = Number(filters.page) || 1;
 
@@ -188,15 +189,15 @@ const GameRequests = () => {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-black tracking-tight text-ink-900 sm:text-2xl">
-            Game requests
+            Sell quotes
           </h1>
           <p className="mt-1 text-sm text-ink-500">
-            Cannot find a title in our shop? Ask us to source it and we will hunt it down.
+            Cash offers you have submitted. We verify condition from photos or when the item arrives.
           </p>
         </div>
 
-        <Button size="sm" leftIcon={<FiPlus size={15} />} onClick={() => setFormOpen(true)}>
-          New request
+        <Button size="sm" leftIcon={<FiPlus size={15} />} onClick={() => navigate('/sell')}>
+          Sell another item
         </Button>
       </header>
 
@@ -234,7 +235,7 @@ const GameRequests = () => {
         <div className="card">
           <EmptyState
             icon={<FiGift size={22} />}
-            title={filters.status ? 'Nothing with that status' : 'No requests yet'}
+            title={filters.status ? 'Nothing with that status' : 'No sell quotes yet'}
             message={
               filters.status
                 ? 'Try another status to see the rest of your requests.'

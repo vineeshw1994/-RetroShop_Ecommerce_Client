@@ -18,7 +18,7 @@ import { useAsync, useDocumentTitle, useQueryFilters, useScrollLock } from '@/ho
 import { conditionLabel, formatNumber, formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
-import CreditBanner from '@/components/shop/CreditBanner';
+import SellCta from '@/components/shop/SellCta';
 import {
   Badge,
   Button,
@@ -443,7 +443,7 @@ const Catalog = () => {
     <div className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
       {!category.data && !filters.search && (
         <div className="mb-6 space-y-4">
-          <CreditBanner />
+          <SellCta />
         </div>
       )}
       {/* Page heading */}

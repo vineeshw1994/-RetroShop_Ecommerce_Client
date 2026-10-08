@@ -23,7 +23,7 @@ const NAV = [
   { to: '/account/profile', label: 'Personal Details', icon: FiUser, match: 'profile' as const },
   { to: '/account/addresses', label: 'Addresses', icon: FiMapPin, match: 'addresses' as const },
   { to: '/account/orders', label: 'Order History', icon: FiPackage, match: 'orders' as const },
-  { to: '/account/requests', label: 'Trade-in History', icon: FiGift, match: 'requests' as const },
+  { to: '/account/requests', label: 'Sell quotes', icon: FiGift, match: 'requests' as const },
   { to: '/account/wishlist', label: 'Saved Items', icon: FiHeart, match: 'wishlist' as const },
 ];
 

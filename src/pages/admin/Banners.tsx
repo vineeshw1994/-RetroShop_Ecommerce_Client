@@ -43,6 +43,9 @@ import {
   Textarea,
   type SelectOption,
 } from '@/components/ui';
+import BannerTemplatePicker, { applyTemplateDefaults } from '@/components/admin/BannerTemplatePicker';
+import HeroBannerSlide from '@/components/shop/HeroBannerSlide';
+import { BANNER_THEME_CUSTOM, getBannerTemplate } from '@/lib/bannerTemplates';
 import type { Banner, BannerPlacement } from '@/types';
 
 const PAGE_SIZE = 24;
@@ -126,6 +129,7 @@ const schema = z
     isActive: z.boolean(),
     startsAt: z.string(),
     endsAt: z.string(),
+    theme: z.string().trim().max(40),
   })
   .refine(
     (values) =>
@@ -153,6 +157,7 @@ const EMPTY_VALUES: FormValues = {
   isActive: true,
   startsAt: '',
   endsAt: '',
+  theme: 'respawn-sell-shop',
 };
 
 const FORM_FIELDS = Object.keys(EMPTY_VALUES) as (keyof FormValues)[];
@@ -263,18 +268,31 @@ const BannerCard = ({
       transition={{ duration: 0.22, delay: Math.min(index, 6) * 0.03 }}
       className="card overflow-hidden"
     >
-      <SmartImage
-        src={banner.image}
-        alt={banner.title}
-        wrapperClassName="aspect-[16/7] w-full"
-        className="h-full w-full object-cover"
-      />
+      {banner.placement === 'home_hero' && (banner.theme || banner.image) ? (
+        <div className="overflow-hidden bg-void">
+          <HeroBannerSlide banner={banner} isMobile={false} preview />
+        </div>
+      ) : (
+        <SmartImage
+          src={banner.image}
+          alt={banner.title}
+          wrapperClassName="aspect-[16/7] w-full"
+          className="h-full w-full object-cover"
+        />
+      )}
 
       <div className="p-4">
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone="brand">{PLACEMENT_LABELS[banner.placement] || banner.placement}</Badge>
           {schedule && <Badge tone={SCHEDULE_TONES[schedule]} dot>{SCHEDULE_LABELS[schedule]}</Badge>}
           {!banner.isActive && <Badge tone="neutral">Inactive</Badge>}
+          {banner.placement === 'home_hero' && getBannerTemplate(banner.theme) && (
+            <Badge tone="info">{getBannerTemplate(banner.theme)?.name}</Badge>
+          )}
+          {banner.placement === 'home_hero' &&
+            (banner.theme === BANNER_THEME_CUSTOM || (!banner.theme && banner.image)) && (
+              <Badge tone="neutral">Custom artwork</Badge>
+            )}
         </div>
 
         <h3 className="mt-2.5 truncate text-sm font-bold text-ink-900">{banner.title}</h3>
@@ -489,6 +507,7 @@ const Banners = () => {
       isActive: banner.isActive,
       startsAt: toLocalInput(banner.startsAt),
       endsAt: toLocalInput(banner.endsAt),
+      theme: banner.theme || BANNER_THEME_CUSTOM,
     });
     setSelectedProducts(productIds);
     setProductSearch('');
@@ -513,6 +532,7 @@ const Banners = () => {
       ctaLabel: values.ctaLabel,
       placement: values.placement,
       isActive: values.isActive,
+      theme: values.placement === 'home_hero' ? values.theme : '',
     };
 
     if (values.sortOrder !== '') payload.sortOrder = Number(values.sortOrder);
@@ -589,6 +609,12 @@ const Banners = () => {
   ).length;
 
   const isActive = watch('isActive');
+  const placement = watch('placement');
+  const theme = watch('theme');
+  const title = watch('title');
+  const subtitle = watch('subtitle');
+  const ctaLabel = watch('ctaLabel');
+  const isCustomHero = theme === BANNER_THEME_CUSTOM;
 
   return (
     <div>
@@ -662,6 +688,16 @@ const Banners = () => {
               </header>
 
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {canCreate && group.value === 'home_hero' && (
+                  <button
+                    type="button"
+                    onClick={openCreate}
+                    className="flex min-h-[280px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-ink-200 bg-ink-50/50 text-ink-400 transition hover:border-brand-400 hover:text-brand-600"
+                  >
+                    <FiImage size={28} />
+                    <span className="text-sm font-semibold">Add homepage banner</span>
+                  </button>
+                )}
                 {group.banners.map((banner, index) => (
                   <BannerCard
                     key={banner.id}
@@ -687,7 +723,7 @@ const Banners = () => {
       <Modal
         open={editorOpen}
         onClose={() => setEditorOpen(false)}
-        size="lg"
+        size="xl"
         title={editing ? `Edit ${editing.title}` : 'New banner'}
         description="Artwork, copy and the window it should be visible for."
         footer={
@@ -702,6 +738,32 @@ const Banners = () => {
         }
       >
         <form id="banner-form" onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          {placement === 'home_hero' && (
+            <BannerTemplatePicker
+              value={theme}
+              onChange={(next) => {
+                setValue('theme', next, { shouldDirty: true });
+                if (!editing) {
+                  const defaults = applyTemplateDefaults(next);
+                  if (defaults) {
+                    setValue('title', defaults.title, { shouldDirty: true });
+                    setValue('subtitle', defaults.subtitle, { shouldDirty: true });
+                    setValue('ctaLabel', defaults.ctaLabel, { shouldDirty: true });
+                  }
+                }
+              }}
+              previewBanner={{
+                title,
+                subtitle,
+                ctaLabel,
+                image: editing?.image ?? null,
+                mobileImage: editing?.mobileImage ?? null,
+                linkUrl: '/search',
+                placement: 'home_hero',
+              }}
+            />
+          )}
+
           <Input
             {...register('title')}
             label="Title"
@@ -821,7 +883,11 @@ const Banners = () => {
           <div className="grid gap-4 border-t border-ink-100 pt-4 sm:grid-cols-2">
             <UploadField
               label="Desktop artwork"
-              hint="Wide image, roughly 1600 × 700."
+              hint={
+                placement === 'home_hero' && !isCustomHero
+                  ? 'Optional background for template layouts (1600 × 700).'
+                  : 'Wide image, roughly 1600 × 700.'
+              }
               current={editing?.image}
               file={imageFile}
               onSelect={setImageFile}
@@ -834,6 +900,7 @@ const Banners = () => {
               onSelect={setMobileImageFile}
             />
           </div>
+          <input type="hidden" {...register('theme')} />
 
           <div className="border-t border-ink-100 pt-4">
             <Switch

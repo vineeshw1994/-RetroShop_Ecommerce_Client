@@ -1,377 +1,283 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
+  FiArrowRight,
+  FiCamera,
   FiCheckCircle,
-  FiEdit3,
-  FiLock,
-  FiMail,
+  FiMapPin,
   FiSearch,
-  FiSend,
 } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { pushToast } from '@/store/slices/uiSlice';
 import { accountService } from '@/services/account.service';
 import { getErrorMessage } from '@/lib/api';
-import { useAsync, useDocumentTitle } from '@/hooks';
-import { formatDate, formatPrice } from '@/lib/format';
+import { useDocumentTitle } from '@/hooks';
+import { formatPrice } from '@/lib/format';
+import cn from '@/lib/cn';
+import { Button, Input, Select } from '@/components/ui';
+import { ITEM_TYPES, PLATFORMS, type ItemTypeKey, type PlatformKey } from '@/lib/shopNav';
 import {
-  Badge,
-  Button,
-  Input,
-  Select,
-  Skeleton,
-  Textarea,
-} from '@/components/ui';
-import type { GameRequestStatus } from '@/types';
+  GAME_TYPES,
+  SELL_CONDITIONS,
+  STORAGE_OPTIONS,
+  conditionToApi,
+  quoteSellPrice,
+  type SellCondition,
+} from '@/lib/sellQuote';
 
-const PLATFORM_OPTIONS = [
-  'PlayStation 5',
-  'PlayStation 4',
-  'PlayStation 3',
-  'Xbox Series X|S',
-  'Xbox One',
-  'Xbox 360',
-  'Nintendo Switch',
-  'Nintendo 3DS',
-  'Nintendo Wii',
-  'PC',
-  'Retro console',
-  'Other',
-].map((platform) => ({ value: platform, label: platform }));
+const HOLDING_EMAIL = 'sell@respawn.store';
+const POST_ADDRESS = 'Respawn, Unit 4, Trade-in Desk, Manchester, M1 1AA';
 
-const CONDITION_OPTIONS = [
-  { value: 'any', label: 'Any condition' },
-  { value: 'new', label: 'Brand new only' },
-  { value: 'used', label: 'Pre-owned is fine' },
-];
+const isItemType = (value: string | null): value is ItemTypeKey =>
+  ITEM_TYPES.some((entry) => entry.key === value);
 
-const HOW_IT_WORKS = [
-  {
-    icon: FiEdit3,
-    title: 'Tell us what you want',
-    text: 'Share the title, the platform and the most you would like to pay.',
-  },
-  {
-    icon: FiSearch,
-    title: 'We go hunting',
-    text: 'Our buyers check trade-ins and suppliers for a tested, warranty-backed copy.',
-  },
-  {
-    icon: FiMail,
-    title: 'We get in touch',
-    text: 'You get an email as soon as we find it, with a link to buy before anyone else.',
-  },
-];
-
-const STATUS_BADGES: Record<GameRequestStatus, { label: string; tone: 'warning' | 'info' | 'success' | 'neutral' | 'brand' }> = {
-  pending: { label: 'Pending', tone: 'warning' },
-  sourcing: { label: 'Sourcing', tone: 'info' },
-  found: { label: 'Found', tone: 'success' },
-  unavailable: { label: 'Unavailable', tone: 'neutral' },
-  fulfilled: { label: 'Fulfilled', tone: 'brand' },
-};
-
-const requestSchema = z.object({
-  title: z.string().min(2, 'Tell us which title you are after').max(160, 'That title is too long'),
-  platform: z.string().optional(),
-  conditionPreference: z.enum(['any', 'new', 'used']),
-  maxBudget: z
-    .string()
-    .optional()
-    .refine(
-      (value) => !value || (!Number.isNaN(Number(value)) && Number(value) > 0),
-      'Enter a budget as a number, for example 35'
-    ),
-  notes: z.string().max(1000, 'Please keep notes under 1000 characters').optional(),
-});
-
-type RequestForm = z.infer<typeof requestSchema>;
+const isPlatform = (value: string | null): value is PlatformKey =>
+  PLATFORMS.some((entry) => entry.key === value);
 
 const RequestGame = () => {
-  useDocumentTitle('Request a game');
+  useDocumentTitle('Sell to us');
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const isAuthenticated = useAppSelector((state) => state.auth.status === 'authenticated');
 
+  const [query, setQuery] = useState('');
+  const [type, setType] = useState<ItemTypeKey>('consoles');
+  const [platform, setPlatform] = useState<PlatformKey>('Xbox');
+  const [condition, setCondition] = useState<SellCondition>('very_good');
+  const [storage, setStorage] = useState('');
+  const [gameType, setGameType] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [needsAccount, setNeedsAccount] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [accepted, setAccepted] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<RequestForm>({
-    resolver: zodResolver(requestSchema),
-    defaultValues: {
-      title: '',
-      platform: '',
-      conditionPreference: 'any',
-      maxBudget: '',
-      notes: '',
-    },
-  });
+  useEffect(() => {
+    const nextType = searchParams.get('type');
+    const nextPlatform = searchParams.get('platform');
+    if (isItemType(nextType)) setType(nextType);
+    if (isPlatform(nextPlatform)) setPlatform(nextPlatform);
+  }, [searchParams]);
 
-  const recent = useAsync(
-    async () =>
-      isAuthenticated ? (await accountService.listGameRequests({ limit: 5 })).data : [],
-    [isAuthenticated]
+  const quote = useMemo(
+    () => quoteSellPrice({ type, platform, condition, storage, gameType }),
+    [type, platform, condition, storage, gameType]
   );
 
-  const onSubmit = handleSubmit(async (values) => {
-    // Requests are tied to an account, so guests are prompted rather than lost.
+  const itemLabel = query.trim() || `my ${platform} ${type.slice(0, -1)}`;
+
+  const acceptOffer = async () => {
     if (!isAuthenticated) {
-      setNeedsAccount(true);
+      const next = `/sell?type=${type}&platform=${encodeURIComponent(platform)}`;
+      navigate(`/login?next=${encodeURIComponent(next)}`);
       return;
     }
 
     setSubmitting(true);
-    setError(null);
-
     try {
+      const featureBits = [
+        type === 'consoles' && storage ? `Storage: ${storage}` : null,
+        type === 'games' && gameType ? `Edition: ${gameType}` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ');
+
       await accountService.createGameRequest({
-        title: values.title.trim(),
-        platform: values.platform || undefined,
-        conditionPreference: values.conditionPreference,
-        maxBudget: values.maxBudget ? Number(values.maxBudget) : undefined,
-        notes: values.notes?.trim() || undefined,
+        title: itemLabel,
+        platform,
+        conditionPreference: conditionToApi(condition),
+        maxBudget: quote,
+        notes: [
+          'SELL TO US',
+          `Type: ${type}`,
+          `Condition: ${condition}`,
+          featureBits,
+          `Quoted cash offer: ${formatPrice(quote)}`,
+          `Verify via photos or send to ${POST_ADDRESS}. Holding email: ${HOLDING_EMAIL}.`,
+        ]
+          .filter(Boolean)
+          .join('\n'),
       });
 
-      setSubmitted(true);
-      dispatch(pushToast('Request sent — we are on it', 'success'));
-      void recent.reload();
-    } catch (caught) {
-      setError(getErrorMessage(caught));
+      setAccepted(true);
+      dispatch(pushToast('Offer accepted — we will email you next steps', 'success'));
+    } catch (error) {
+      dispatch(pushToast(getErrorMessage(error), 'error'));
     } finally {
       setSubmitting(false);
     }
-  });
-
-  const startAnother = () => {
-    reset();
-    setSubmitted(false);
-    setError(null);
   };
 
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-6 lg:px-6 lg:py-10">
-      <motion.header
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <Badge tone="brand">Free service</Badge>
-        <h1 className="mt-3 text-2xl font-black tracking-tight text-ink-900 sm:text-4xl">
-          Can't find it? We'll source it for you
-        </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-ink-500 sm:text-base">
-          Our shelves change daily as trade-ins come through the door. Tell us the title you are
-          hunting for and our buying team will keep an eye out, then contact you the moment a tested
-          copy lands — covered by the same warranty as everything else we sell.
-        </p>
-      </motion.header>
-
-      <section className="mt-8 grid gap-4 sm:grid-cols-3">
-        {HOW_IT_WORKS.map((step, index) => (
-          <motion.div
-            key={step.title}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 * index }}
-            className="card p-5"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600">
-              <step.icon size={18} />
-            </span>
-            <p className="mt-3 text-sm font-bold text-ink-900">
-              {index + 1}. {step.title}
+  if (accepted) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-10 lg:px-6">
+        <div className="card p-6 text-center sm:p-10">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+            <FiCheckCircle size={28} />
+          </span>
+          <h1 className="mt-4 text-2xl font-black text-ink-900">Offer accepted</h1>
+          <p className="mt-2 text-sm text-ink-500">
+            We have logged your {formatPrice(quote)} cash offer for <strong>{itemLabel}</strong>.
+            We verify condition from photos or when the item arrives.
+          </p>
+          <div className="mt-6 space-y-3 rounded-2xl border border-ink-200 bg-ink-50 p-4 text-left text-sm">
+            <p className="flex items-start gap-2 text-ink-700">
+              <FiCamera className="mt-0.5 shrink-0 text-brand-400" size={16} />
+              Email photos to <span className="font-semibold text-brand-400">{HOLDING_EMAIL}</span>
             </p>
-            <p className="mt-1 text-sm leading-relaxed text-ink-500">{step.text}</p>
-          </motion.div>
-        ))}
-      </section>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <section className="card p-5 sm:p-6">
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center py-6 text-center"
-            >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                <FiCheckCircle size={26} />
-              </span>
-
-              <h2 className="mt-4 text-lg font-bold text-ink-900">Request received</h2>
-              <p className="mt-1.5 max-w-sm text-sm text-ink-500">
-                We have added it to the hunt list. You will get an email as soon as we track a copy
-                down, and you can follow its progress in your account.
-              </p>
-
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                <Link to="/account/requests">
-                  <Button>View my requests</Button>
-                </Link>
-                <Button variant="outline" onClick={startAnother}>
-                  Request another title
-                </Button>
-              </div>
-            </motion.div>
-          ) : (
-            <form onSubmit={onSubmit} className="space-y-4" noValidate>
-              <h2 className="text-base font-bold text-ink-900">What are we looking for?</h2>
-
-              <Input
-                label="Game or console title"
-                placeholder="e.g. Metal Gear Solid 3: Subsistence"
-                required
-                error={errors.title?.message}
-                {...register('title')}
-              />
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Select
-                  label="Platform"
-                  placeholder="Select a platform"
-                  options={PLATFORM_OPTIONS}
-                  error={errors.platform?.message}
-                  {...register('platform')}
-                />
-
-                <Select
-                  label="Condition preference"
-                  options={CONDITION_OPTIONS}
-                  error={errors.conditionPreference?.message}
-                  {...register('conditionPreference')}
-                />
-              </div>
-
-              <Input
-                label="Maximum budget"
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                placeholder="35.00"
-                hint="Optional — it helps us know when a copy is worth flagging."
-                leftIcon={<span className="text-sm font-semibold">£</span>}
-                error={errors.maxBudget?.message}
-                {...register('maxBudget')}
-              />
-
-              <Textarea
-                label="Anything else?"
-                rows={4}
-                placeholder="Region, boxed or unboxed, PAL vs NTSC, how soon you need it…"
-                error={errors.notes?.message}
-                {...register('notes')}
-              />
-
-              {needsAccount && !isAuthenticated && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-lg bg-ink-50 p-4 ring-1 ring-inset ring-ink-200"
-                >
-                  <p className="flex items-center gap-2 text-sm font-bold text-ink-900">
-                    <FiLock size={15} className="text-brand-600" />
-                    Sign in to send your request
-                  </p>
-                  <p className="mt-1.5 text-sm text-ink-500">
-                    We need somewhere to send the good news. Your answers stay on this page while
-                    you sign in or create an account.
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <Link to="/login?next=/request-a-game">
-                      <Button size="sm">Sign in</Button>
-                    </Link>
-                    <Link to="/signup">
-                      <Button size="sm" variant="outline">
-                        Create an account
-                      </Button>
-                    </Link>
-                  </div>
-                </motion.div>
-              )}
-
-              {error && (
-                <p className="rounded-lg bg-brand-50 p-3 text-sm font-medium text-brand-700">
-                  {error}
-                </p>
-              )}
-
-              <Button
-                type="submit"
-                fullWidth
-                size="lg"
-                loading={submitting}
-                leftIcon={<FiSend size={16} />}
-              >
-                Send my request
-              </Button>
-            </form>
-          )}
-        </section>
-
-        {isAuthenticated && (
-          <aside className="card h-fit p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-ink-900">Your recent requests</h2>
-              <Link
-                to="/account/requests"
-                className="text-xs font-bold text-brand-600 hover:text-brand-700"
-              >
-                See all
-              </Link>
-            </div>
-
-            {recent.loading ? (
-              <div className="mt-4 space-y-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <Skeleton key={index} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : (recent.data || []).length === 0 ? (
-              <p className="mt-3 text-sm text-ink-500">
-                Nothing yet — your requests will be listed here.
-              </p>
-            ) : (
-              <ul className="mt-3 divide-y divide-ink-100">
-                {(recent.data || []).map((request) => (
-                  <li key={request.id} className="py-3 first:pt-0 last:pb-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="line-clamp-2 text-sm font-semibold text-ink-800">
-                        {request.title}
-                      </p>
-                      <Badge tone={STATUS_BADGES[request.status].tone}>
-                        {STATUS_BADGES[request.status].label}
-                      </Badge>
-                    </div>
-
-                    <p className="mt-1 text-[11px] text-ink-400">
-                      {[
-                        request.platform,
-                        request.maxBudget ? `up to ${formatPrice(request.maxBudget)}` : null,
-                        formatDate(request.createdAt),
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </aside>
-        )}
+            <p className="flex items-start gap-2 text-ink-700">
+              <FiMapPin className="mt-0.5 shrink-0 text-brand-400" size={16} />
+              Or post to {POST_ADDRESS}
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link to="/account/requests">
+              <Button>View my sell quotes</Button>
+            </Link>
+            <Button variant="outline" onClick={() => setAccepted(false)}>
+              Sell another item
+            </Button>
+          </div>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-6 lg:py-10">
+      <header className="mb-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-400">Sell to us</p>
+        <h1 className="mt-1 text-3xl font-black tracking-tight text-ink-900">I want to sell my tech</h1>
+        <p className="mt-2 max-w-xl text-sm text-ink-500">
+          Search what you are selling, pick the condition, and watch the cash offer update live.
+          Once you accept, we verify with photos or when the parcel arrives.
+        </p>
+      </header>
+
+      <div className="card space-y-6 p-5 sm:p-6">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-semibold text-ink-800">Search what you want to sell</span>
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="e.g. Xbox Series X, Mario Kart 8, DualSense…"
+            leftIcon={<FiSearch size={16} />}
+          />
+        </label>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold text-ink-800">What is it?</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {ITEM_TYPES.map((entry) => (
+              <button
+                key={entry.key}
+                type="button"
+                onClick={() => setType(entry.key)}
+                className={cn(
+                  'rounded-xl border px-3 py-2.5 text-sm font-bold transition',
+                  type === entry.key
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-ink-300 text-ink-700 hover:border-brand-400'
+                )}
+              >
+                {entry.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold text-ink-800">Platform</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {PLATFORMS.map((entry) => (
+              <button
+                key={entry.key}
+                type="button"
+                onClick={() => setPlatform(entry.key)}
+                className={cn(
+                  'rounded-xl border px-3 py-2.5 text-sm font-bold transition',
+                  platform === entry.key
+                    ? 'border-brand-500 bg-brand-500/10 text-brand-400'
+                    : 'border-ink-300 text-ink-700 hover:border-brand-400'
+                )}
+              >
+                {entry.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        {type === 'consoles' && (
+          <Select
+            label="Storage size"
+            value={storage}
+            onChange={(event) => setStorage(event.target.value)}
+            options={STORAGE_OPTIONS}
+          />
+        )}
+
+        {type === 'games' && (
+          <Select
+            label="Game type / edition"
+            value={gameType}
+            onChange={(event) => setGameType(event.target.value)}
+            options={GAME_TYPES}
+          />
+        )}
+
+        <fieldset>
+          <legend className="mb-2 text-sm font-semibold text-ink-800">Condition</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {SELL_CONDITIONS.map((entry) => (
+              <button
+                key={entry.key}
+                type="button"
+                onClick={() => setCondition(entry.key)}
+                className={cn(
+                  'rounded-xl border px-3 py-3 text-left transition',
+                  condition === entry.key
+                    ? 'border-brand-500 bg-brand-500/10'
+                    : 'border-ink-300 hover:border-brand-400'
+                )}
+              >
+                <span className="block text-sm font-bold text-ink-900">{entry.label}</span>
+                <span className="mt-0.5 block text-xs text-ink-500">{entry.hint}</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+
+      <motion.aside
+        key={`${quote}-${condition}`}
+        initial={{ opacity: 0.6, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card mt-5 overflow-hidden p-5 sm:p-6"
+      >
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-400">Your cash offer</p>
+        <p className="mt-1 text-sm text-ink-500">
+          For <strong className="text-ink-900">{itemLabel}</strong> · {platform} ·{' '}
+          {SELL_CONDITIONS.find((entry) => entry.key === condition)?.label}
+        </p>
+        <p className="mt-3 text-4xl font-black tracking-tight text-brand-400">{formatPrice(quote)}</p>
+        <p className="mt-1 text-xs text-ink-400">
+          Offer updates as you change condition or features. Final payout after we verify.
+        </p>
+
+        <Button
+          className="mt-5"
+          size="lg"
+          fullWidth
+          loading={submitting}
+          onClick={acceptOffer}
+          rightIcon={<FiArrowRight size={16} />}
+        >
+          {isAuthenticated ? 'Accept offer' : 'Sign in to accept offer'}
+        </Button>
+        <p className="mt-3 text-center text-xs text-ink-400">
+          Next step: send photos to {HOLDING_EMAIL} or post to {POST_ADDRESS}.
+        </p>
+      </motion.aside>
     </div>
   );
 };

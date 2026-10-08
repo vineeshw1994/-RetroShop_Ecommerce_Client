@@ -17,7 +17,7 @@ import { resetBodyScrollLock } from '@/lib/scrollLock';
 const MOBILE_TABS = [
   { to: '/', label: 'Home', icon: FiHome, end: true },
   { to: '/search', label: 'Shop', icon: FiGrid },
-  { to: '/request-a-game', label: 'Trade-in', icon: FiRefreshCw },
+  { to: '/sell', label: 'Sell', icon: FiRefreshCw },
   { to: '/basket', label: 'Basket', icon: FiShoppingCart, badge: 'basket' as const },
   { to: '/account', label: 'Account', icon: FiUser, match: 'account' as const },
 ];
@@ -28,6 +28,10 @@ const isMobileTabActive = (tab: (typeof MOBILE_TABS)[number], pathname: string) 
   }
 
   if (tab.end) return pathname === tab.to;
+
+  if (tab.to === '/sell') {
+    return pathname === '/sell' || pathname.startsWith('/sell') || pathname === '/request-a-game';
+  }
 
   return pathname === tab.to || pathname.startsWith(`${tab.to}/`);
 };

@@ -204,21 +204,21 @@ const ProductCard = ({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-3">
+      <div className="flex flex-1 flex-col p-2.5 sm:p-3">
         <Link
           to={`/product/${product.slug}`}
-          className="line-clamp-2 min-h-[2.5rem] text-sm font-bold leading-snug text-ink-900 transition hover:text-brand-400"
+          className="line-clamp-2 min-h-[2.25rem] text-xs font-bold leading-snug text-ink-900 transition hover:text-brand-400 sm:min-h-[2.5rem] sm:text-sm"
         >
           {product.name}
         </Link>
-        <p className="mt-0.5 text-[11px] text-ink-400">(Pre-owned)</p>
+        <p className="mt-0.5 text-[10px] text-ink-400 sm:text-[11px]">(Pre-owned)</p>
 
         <div className="mt-1.5">
           <GradeBadge condition={product.condition} />
         </div>
 
-        <div className="mt-2 flex flex-wrap items-end gap-2">
-          <p className="text-lg font-black leading-none text-brand-400">
+        <div className="mt-1.5 flex flex-wrap items-end gap-1.5 sm:mt-2 sm:gap-2">
+          <p className="text-base font-black leading-none text-brand-400 sm:text-lg">
             {formatPrice(product.effectivePrice)}
           </p>
           {onSale && (
@@ -232,15 +232,16 @@ const ProductCard = ({
           )}
         </div>
 
-        <ul className="mt-2 space-y-0.5 text-[10px] font-medium text-ink-500">
+        <ul className="mt-1.5 hidden space-y-0.5 text-[10px] font-medium text-ink-500 sm:mt-2 sm:block">
           <li className="flex items-center gap-1.5">
-            <FiShield size={11} className="text-brand-400" /> 12 Month Warranty
+            <FiShield size={11} className="shrink-0 text-brand-400" aria-hidden /> 12 Month Warranty
+          </li>
+          <li className="hidden items-center gap-1.5 sm:flex">
+            <FiCheckCircle size={11} className="shrink-0 text-brand-400" aria-hidden /> Fully Tested
+            &amp; Cleaned
           </li>
           <li className="flex items-center gap-1.5">
-            <FiCheckCircle size={11} className="text-brand-400" /> Fully Tested &amp; Cleaned
-          </li>
-          <li className="flex items-center gap-1.5">
-            <FiTruck size={11} className="text-brand-400" /> Free Delivery
+            <FiTruck size={11} className="shrink-0 text-brand-400" aria-hidden /> Free Delivery
           </li>
         </ul>
 
@@ -277,9 +278,9 @@ const ProductCard = ({
               type="button"
               onClick={(event) => void handleAdd(event)}
               disabled={!product.inStock || adding}
-              className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 text-sm font-bold text-void transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-ink-300 disabled:text-ink-500"
+              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-brand-600 text-xs font-bold text-void transition hover:bg-brand-500 disabled:cursor-not-allowed disabled:bg-ink-300 disabled:text-ink-500 sm:h-10 sm:gap-2 sm:text-sm"
             >
-              {adding ? <Spinner size="xs" /> : <FiShoppingCart size={15} />}
+              {adding ? <Spinner size="xs" /> : <FiShoppingCart size={15} aria-hidden />}
               Add to Basket
             </button>
           )}

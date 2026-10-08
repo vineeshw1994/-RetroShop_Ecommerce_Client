@@ -9,7 +9,6 @@ import {
   FiPlus,
   FiShoppingCart,
   FiTrash2,
-  FiRefreshCw,
 } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -23,7 +22,7 @@ import { useDocumentTitle } from '@/hooks';
 import { formatPrice } from '@/lib/format';
 import cn from '@/lib/cn';
 import GradeBadge from '@/components/shop/GradeBadge';
-import CreditBanner from '@/components/shop/CreditBanner';
+import SellCta from '@/components/shop/SellCta';
 import {
   Button,
   ConfirmDialog,
@@ -265,32 +264,7 @@ const Basket = () => {
             />
           ))}
 
-          <div className="relative overflow-hidden rounded-2xl border border-transparent p-[1px] [background-image:linear-gradient(90deg,var(--color-brand-500),var(--color-accent-500))]">
-            <div className="flex flex-col gap-4 rounded-2xl bg-ink-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-void">
-                  <FiRefreshCw size={20} />
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-400">
-                    Trade in and get more
-                  </p>
-                  <p className="mt-1 max-w-md text-sm text-ink-500">
-                    Get Respawn Credit for your old consoles, games and tech.
-                  </p>
-                </div>
-              </div>
-              <Link
-                to="/request-a-game"
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full btn-glow-purple px-5 text-sm font-bold text-white"
-              >
-                Get a Valuation
-                <FiArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-
-          <CreditBanner />
+          <SellCta />
 
           <button
             type="button"

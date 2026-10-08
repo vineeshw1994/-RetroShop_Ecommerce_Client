@@ -7,7 +7,6 @@ import {
   FiSliders,
 } from 'react-icons/fi';
 import cn from '@/lib/cn';
-import CreditBanner from '@/components/shop/CreditBanner';
 import { SmartImage } from '@/components/ui';
 import type { Category } from '@/types';
 
@@ -206,7 +205,6 @@ const HomeShopTop = ({ categories }: { categories: Category[] }) => (
     <CategoryGrid categories={categories} />
     <ShopByBrand />
     <HomeFilterBar />
-    <CreditBanner variant="home" />
   </div>
 );
 

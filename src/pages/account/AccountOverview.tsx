@@ -22,7 +22,7 @@ import { resetBasket } from '@/store/slices/basketSlice';
 import { resetWishlist } from '@/store/slices/wishlistSlice';
 import { pushToast } from '@/store/slices/uiSlice';
 import { useAsync, useDocumentTitle } from '@/hooks';
-import { formatPrice, initials } from '@/lib/format';
+import { initials } from '@/lib/format';
 import cn from '@/lib/cn';
 import { ErrorState, Skeleton, SmartImage } from '@/components/ui';
 
@@ -88,7 +88,6 @@ const AccountOverview = () => {
   const { data, loading, error, reload } = useAsync(() => accountService.overview(), []);
 
   const overview = data?.data;
-  const creditDisplay = formatPrice(0);
 
   const handleLogout = async () => {
     await dispatch(logout());
@@ -147,17 +146,17 @@ const AccountOverview = () => {
             />
             <QuickTile
               to="/account/requests"
-              title="Trade-ins"
-              hint="Get a valuation"
+              title="Sell to us"
+              hint="Your cash quotes"
               icon={<FiRefreshCw size={18} />}
               tone="bg-cyan-500/15 text-cyan-300"
               delay={0.05}
             />
             <QuickTile
-              to="/contact"
-              title="Respawn Credit"
-              hint="Your balance"
-              icon={<FiCreditCard size={18} />}
+              to="/sell"
+              title="Get a quote"
+              hint="Sell games & consoles"
+              icon={<FiGift size={18} />}
               tone="bg-accent-600/20 text-accent-400"
               delay={0.1}
             />
@@ -176,17 +175,7 @@ const AccountOverview = () => {
             <MenuRow to="/account/addresses" label="Addresses" icon={<FiMapPin size={17} />} />
             <MenuRow to="/checkout" label="Payment Methods" icon={<FiCreditCard size={17} />} />
             <MenuRow to="/account/orders" label="Order History" icon={<FiPackage size={17} />} />
-            <MenuRow to="/account/requests" label="Trade-in History" icon={<FiGift size={17} />} />
-            <MenuRow
-              to="/contact"
-              label="Respawn Credit"
-              icon={<FiCreditCard size={17} />}
-              badge={
-                <span className="rounded-full bg-accent-600 px-2.5 py-1 text-xs font-bold text-white">
-                  {creditDisplay}
-                </span>
-              }
-            />
+            <MenuRow to="/account/requests" label="Sell quotes" icon={<FiGift size={17} />} />
             <MenuRow to="/account/profile" label="Notifications" icon={<FiBell size={17} />} />
             <MenuRow to="/contact" label="Help & Support" icon={<FiHelpCircle size={17} />} />
             <MenuRow to="/account/profile" label="Settings" icon={<FiSettings size={17} />} />

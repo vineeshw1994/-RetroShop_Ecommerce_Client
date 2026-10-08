@@ -1,7 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FiArrowRight, FiChevronLeft, FiChevronRight, FiRefreshCw, FiZap } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiZap } from 'react-icons/fi';
+import HeroBannerSlide from '@/components/shop/HeroBannerSlide';
+import { heroBannerFrameClass } from '@/lib/heroBannerLayout';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchHomeFeed } from '@/store/slices/catalogSlice';
 import { useDocumentTitle, useIsMobile } from '@/hooks';
@@ -9,6 +11,7 @@ import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
 import TrustStrip from '@/components/shop/TrustStrip';
 import HomeShopTop from '@/components/shop/HomeShopTop';
+import SellCta from '@/components/shop/SellCta';
 import { ErrorState, EmptyState, ProductCardSkeleton, Skeleton, SmartImage } from '@/components/ui';
 import type { Banner, Product } from '@/types';
 
@@ -69,57 +72,25 @@ const HeroCarousel = ({ banners }: { banners: Banner[] }) => {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl bg-void"
+      className={cn('relative overflow-hidden rounded-2xl bg-void', heroBannerFrameClass())}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
       aria-roledescription="carousel"
     >
-      <div className="relative aspect-[16/10] sm:aspect-[21/9] lg:aspect-[21/8]">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={banner.id}
-            initial={{ opacity: 0, x: direction * 48 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -48 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-            className="absolute inset-0"
-          >
-            <BannerFrame banner={banner} className="block h-full w-full">
-              <SmartImage
-                src={isMobile ? banner.mobileImage || banner.image : banner.image}
-                alt={banner.title}
-                eager
-                wrapperClassName="h-full w-full"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-void/90 via-void/45 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-center gap-2 p-5 sm:p-8 lg:p-12">
-                <h2 className="max-w-md text-3xl font-black leading-tight text-white sm:text-4xl">
-                  {banner.title.includes(' ') ? (
-                    <>
-                      {banner.title.split(' ').slice(0, -1).join(' ')}{' '}
-                      <span className="text-brand-400">{banner.title.split(' ').slice(-1)}</span>
-                    </>
-                  ) : (
-                    banner.title
-                  )}
-                </h2>
-                {banner.subtitle && (
-                  <p className="max-w-sm text-sm text-white/80 sm:text-base">{banner.subtitle}</p>
-                )}
-                {banner.ctaLabel && (
-                  <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-ink-100 px-5 py-2.5 text-sm font-bold text-ink-900">
-                    {banner.ctaLabel}
-                    <FiArrowRight size={15} />
-                  </span>
-                )}
-              </div>
-            </BannerFrame>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={banner.id}
+          initial={{ opacity: 0, x: direction * 48 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: direction * -48 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="absolute inset-0"
+        >
+          <HeroBannerSlide banner={banner} isMobile={isMobile} fillParent />
+        </motion.div>
+      </AnimatePresence>
 
       {count > 1 && (
         <>
@@ -146,46 +117,28 @@ const HeroCarousel = ({ banners }: { banners: Banner[] }) => {
 };
 
 const FallbackHero = () => (
-  <div className="relative overflow-hidden rounded-2xl border border-brand-500/20 bg-void">
-    <div className="absolute inset-0 bg-gradient-to-r from-void via-void/80 to-accent-600/20" />
-    <div className="absolute -right-10 top-0 h-48 w-48 rounded-full bg-brand-500/20 blur-3xl" />
-    <div className="relative flex min-h-[220px] flex-col justify-center gap-3 p-6 sm:min-h-[280px] sm:p-10">
-      <h2 className="max-w-md text-3xl font-black leading-tight text-white sm:text-4xl">
-        Upgrade <span className="text-brand-400">Your Setup</span>
-      </h2>
-      <p className="max-w-sm text-sm text-white/75">
-        Quality pre-owned gaming &amp; tech at great prices.
-      </p>
-      <Link
-        to="/search"
-        className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-ink-100 px-5 py-2.5 text-sm font-bold text-ink-900"
-      >
-        Shop Now
-        <FiArrowRight size={15} />
-      </Link>
-    </div>
-  </div>
-);
-
-const TradeInBanner = () => (
-  <div className="relative overflow-hidden rounded-2xl border border-accent-500/20 bg-ink-100 p-5 sm:p-6">
-    <div className="absolute -right-8 bottom-0 h-28 w-28 rounded-full bg-accent-500/20 blur-2xl" />
-    <div className="relative flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h3 className="text-lg font-black text-ink-900">Got games, consoles or tech to sell?</h3>
-        <p className="mt-1 max-w-md text-sm text-ink-500">
-          Get an instant valuation and turn your unwanted tech into cash.
-        </p>
-      </div>
-      <Link
-        to="/request-a-game"
-        className="inline-flex h-11 items-center gap-2 rounded-full btn-glow-purple px-5 text-sm font-bold text-white"
-      >
-        <FiRefreshCw size={15} />
-        Get a Valuation
-        <FiArrowRight size={15} />
-      </Link>
-    </div>
+  <div className={cn('relative overflow-hidden rounded-2xl', heroBannerFrameClass())}>
+  <HeroBannerSlide
+    fillParent
+    banner={{
+      id: 0,
+      title: 'Sell your tech. Shop pre-owned.',
+      subtitle:
+        'Quality pre-owned gaming & tech — or get a cash offer for what you no longer play.',
+      image: null,
+      mobileImage: null,
+      linkUrl: '/search',
+      ctaLabel: 'Shop now',
+      placement: 'home_hero',
+      theme: 'respawn-sell-shop',
+      sortOrder: 0,
+      isActive: true,
+      startsAt: null,
+      endsAt: null,
+      clickCount: 0,
+    }}
+    isMobile={false}
+  />
   </div>
 );
 
@@ -251,7 +204,7 @@ const ProductRail = ({
           See all
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -348,7 +301,7 @@ const Home = () => {
         categories={home.categories.length > 0 ? home.categories : catalogCategories}
       />
 
-      <TradeInBanner />
+      <SellCta />
 
       {home.promoStrip.length > 0 && <PromoStrip banners={home.promoStrip} />}
 

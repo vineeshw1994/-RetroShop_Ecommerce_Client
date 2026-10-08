@@ -27,7 +27,7 @@ import { conditionLabel, conditionQuality, formatDate, formatPrice, isConsolePro
 import cn from '@/lib/cn';
 import ProductCard from '@/components/shop/ProductCard';
 import GradeBadge from '@/components/shop/GradeBadge';
-import CreditBanner from '@/components/shop/CreditBanner';
+import SellCta from '@/components/shop/SellCta';
 import {
   Button,
   EmptyState,
@@ -696,7 +696,7 @@ const ProductDetail = () => {
         </div>
       </section>
 
-      <CreditBanner className="mt-10" />
+      <SellCta className="mt-10" />
 
       {related.length > 0 && (
         <section className="mt-10">

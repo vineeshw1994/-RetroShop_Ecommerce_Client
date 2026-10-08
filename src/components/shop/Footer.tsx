@@ -11,7 +11,7 @@ const LINKS = [
       { label: 'All products', to: '/search' },
       { label: 'On sale', to: '/search?onSale=true' },
       { label: 'New arrivals', to: '/search?sort=newest' },
-      { label: 'Request a game', to: '/request-a-game' },
+      { label: 'Sell to us', to: '/sell' },
     ],
   },
   {
@@ -69,7 +69,7 @@ const Footer = () => {
           <BrandMark />
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-400">
             Pre-owned games, consoles and tech, cleaned, fully tested and backed by our warranty.
-            Trade in what you no longer play and pick up your next favourite.
+            Sell us what you no longer play and pick up your next favourite.
           </p>
         </div>
 
