@@ -79,38 +79,48 @@ const HeroCarousel = ({ banners }: { banners: Banner[] }) => {
       onBlur={() => setPaused(false)}
       aria-roledescription="carousel"
     >
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={banner.id}
-          initial={{ opacity: 0, x: direction * 48 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: direction * -48 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="absolute inset-0"
-        >
-          <HeroBannerSlide banner={banner} isMobile={isMobile} fillParent />
-        </motion.div>
-      </AnimatePresence>
+      <div className="absolute inset-0 z-0">
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={banner.id}
+            initial={{ opacity: 0, x: direction * 48 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction * -48 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            className="absolute inset-0"
+          >
+            <HeroBannerSlide banner={banner} isMobile={isMobile} fillParent />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {count > 1 && (
-        <>
+        <div
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-between px-2 sm:px-4"
+        >
           <button
             type="button"
-            onClick={() => goTo(slide - 1, -1)}
+            onClick={(event) => {
+              event.stopPropagation();
+              goTo(slide - 1, -1);
+            }}
             aria-label="Previous banner"
-            className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-void/70 text-brand-400 shadow-sm transition hover:bg-void sm:left-4"
+            className="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-void/85 text-brand-400 shadow-md backdrop-blur-sm transition hover:bg-void hover:text-brand-300"
           >
             <FiChevronLeft size={19} />
           </button>
           <button
             type="button"
-            onClick={() => goTo(slide + 1, 1)}
+            onClick={(event) => {
+              event.stopPropagation();
+              goTo(slide + 1, 1);
+            }}
             aria-label="Next banner"
-            className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-void/70 text-brand-400 shadow-sm transition hover:bg-void sm:right-4"
+            className="pointer-events-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-void/85 text-brand-400 shadow-md backdrop-blur-sm transition hover:bg-void hover:text-brand-300"
           >
             <FiChevronRight size={19} />
           </button>
-        </>
+        </div>
       )}
     </div>
   );
